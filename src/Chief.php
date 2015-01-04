@@ -29,7 +29,7 @@ class Chief implements CommandBus
      * Map a command to a CommandHandler
      *
      * @param $commandName
-     * @param CommandHandler $handler
+     * @param CommandHandler|callable|string $handler
      * @return mixed
      */
     public function pushHandler($commandName, $handler)
