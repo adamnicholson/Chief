@@ -29,7 +29,7 @@ class Chief implements CommandBus
     /**
      * Map a command to a CommandHandler
      *
-     * @param $commandName
+     * @param string $commandName
      * @param CommandHandler|callable|string $handler
      * @return mixed
      */
@@ -64,6 +64,6 @@ class Chief implements CommandBus
             }
         }
 
-        return $this->resolver->resolveHandler(get_class($command));
+        return $this->resolver->resolve(get_class($command));
     }
 }
