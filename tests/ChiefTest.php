@@ -37,6 +37,14 @@ class ChiefTest extends ChiefTestCase
         $chief->execute($command);
         $this->assertEquals($command->handled, true);
     }
+
+    public function testExecuteFiresByAutoResolution()
+    {
+        $chief = new Chief();
+        $command = new ChiefTestCommandStub;
+        $chief->execute($command);
+        $this->assertEquals($command->handled, true);
+    }
 }
 
 class ChiefTestCommandStub implements Command {}
@@ -52,5 +60,4 @@ class ChiefTestCommandStubHandler implements CommandHandler
     {
         $command->handled = true;
     }
-
 }
