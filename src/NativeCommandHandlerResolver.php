@@ -8,17 +8,17 @@ class NativeCommandHandlerResolver implements CommandHandlerResolver
      * Automatically resolve a handler from a command
      *
      * @param Command $command
-     * @return CommandHandler|callable|string
+     * @return CommandHandler
+     * @throws
      */
-    public function resolveHandler(Command $command)
+    public function resolveHandler($command)
     {
-        $commandName = get_class($command);
-
-        if (class_exists($commandName . 'Handler')) {
-            return $commandName . 'Handler';
+        $class = $command . 'Handler';
+        if (class_exists($class)) {
+            return new $class;
         }
 
-        return null;
+        throw new \Exception('Could not resolve a handler for ');
     }
 
 }

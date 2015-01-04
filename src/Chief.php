@@ -3,6 +3,7 @@
 namespace Chief;
 
 use Chief\Handlers\CallableCommandHandler;
+use Chief\Handlers\StringCommandHandler;
 
 class Chief implements CommandBus
 {
@@ -42,8 +43,11 @@ class Chief implements CommandBus
         }
 
         if (is_callable($handler)) {
-            $this->handlers[$commandName] = new CallableCommandHandler($handler);
-            return true;
+            return $this->pushHandler($commandName, new CallableCommandHandler($handler));
+        }
+
+        if (is_string($handler)) {
+            return $this->pushHandler($commandName, new StringCommandHandler($handler));
         }
     }
 
@@ -82,22 +86,19 @@ class Chief implements CommandBus
             }
         }
 
-        if (!is_null($handler = $this->resolveHandler($command))) {
-            return $handler;
-        }
-
-        throw new \InvalidArgumentException('Could not find handler for command [' . get_class($command) . ']');
+        return $this->resolveHandler($command);
     }
 
     /**
      * Automatically detect the name of a CommandHandler from a Command
      *
-     * @param Command $command
+     * @param Command|string $command
      * @return null|string
      */
-    protected function resolveHandler(Command $command)
+    protected function resolveHandler($command)
     {
-        return $this->resolver->resolveHandler($command);
+        $commandName = is_string($command) ? $command : get_class($command);
+        return $this->resolver->resolveHandler($commandName);
     }
 
     /**
