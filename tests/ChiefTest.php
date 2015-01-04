@@ -2,6 +2,10 @@
 
 namespace Chief;
 
+use Chief\Stubs\TestCommand;
+use Chief\Stubs\TestCommandHandler;
+use Chief\Stubs\TestCommandWithoutHandler;
+
 class ChiefTest extends ChiefTestCase
 {
     public function testInstantiable()
@@ -12,8 +16,8 @@ class ChiefTest extends ChiefTestCase
     public function testExecuteFiresHandlerAttachedByInstance()
     {
         $bus = new Chief();
-        $bus->pushHandler('Chief\ChiefTestCommandStub', new ChiefTestCommandStubHandler);
-        $command = new ChiefTestCommandStub;
+        $bus->pushHandler('Chief\Stubs\TestCommand', new TestCommandHandler);
+        $command = new TestCommand;
         $bus->execute($command);
         $this->assertEquals($command->handled, true);
     }
@@ -21,10 +25,10 @@ class ChiefTest extends ChiefTestCase
     public function testExecuteFiresHandlerAttachedByCallable()
     {
         $bus = new Chief();
-        $bus->pushHandler('Chief\ChiefTestCommandStub', function (Command $command) {
+        $bus->pushHandler('Chief\Stubs\TestCommand', function (Command $command) {
             $command->handled = true;
         });
-        $command = new ChiefTestCommandStub;
+        $command = new TestCommand;
         $bus->execute($command);
         $this->assertEquals($command->handled, true);
     }
@@ -32,8 +36,8 @@ class ChiefTest extends ChiefTestCase
     public function testExecuteFiresHandlerAttachedByString()
     {
         $bus = new Chief();
-        $bus->pushHandler('Chief\ChiefTestCommandStub', 'Chief\ChiefTestCommandStubHandler');
-        $command = new ChiefTestCommandStub;
+        $bus->pushHandler('Chief\Stubs\TestCommand', 'Chief\Stubs\TestCommandHandler');
+        $command = new TestCommand;
         $bus->execute($command);
         $this->assertEquals($command->handled, true);
     }
@@ -41,7 +45,7 @@ class ChiefTest extends ChiefTestCase
     public function testExecuteFiresByAutoResolution()
     {
         $bus = new Chief();
-        $command = new ChiefTestCommandStub;
+        $command = new TestCommand;
         $bus->execute($command);
         $this->assertEquals($command->handled, true);
     }
@@ -49,24 +53,8 @@ class ChiefTest extends ChiefTestCase
     public function testExecuteThrowsExceptionWhenNoHandler()
     {
         $bus = new Chief();
-        $command = new ChiefTestCommandWithoutHandlerStub;
+        $command = new TestCommandWithoutHandler;
         $this->setExpectedException('Exception');
         $bus->execute($command);
-    }
-}
-
-class ChiefTestCommandStub implements Command {}
-class ChiefTestCommandWithoutHandlerStub implements Command {}
-class ChiefTestCommandStubHandler implements CommandHandler
-{
-    /**
-     * Handle a command execution
-     *
-     * @param Command $command
-     * @return mixed
-     */
-    public function handle(Command $command)
-    {
-        $command->handled = true;
     }
 }

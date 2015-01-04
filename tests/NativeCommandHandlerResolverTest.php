@@ -13,6 +13,6 @@ class NativeCommandHandlerResolverTest extends ChiefTestCase
     {
         $resolver = new NativeCommandHandlerResolver;
         $this->setExpectedException('Chief\Exceptions\UnresolvableCommandHandlerException');
-        $resolver->resolve('ChiefTestCommandWithoutHandlerStub');
+        $resolver->resolve('Chief\Stubs\TestCommandWithoutHandler');
     }
 }
