@@ -2,6 +2,10 @@
 
 Chief is a lightweight command bus package for PHP 5.3+.
 
+## Installation
+
+Install the latest version with `composer require adamnicholson/chief`, or see [Packagist](https://packagist.org/packages/adamnicholson/chief).
+
 ## Features
 
 - Handle commands via CommandHandler classes or anonymous functions
