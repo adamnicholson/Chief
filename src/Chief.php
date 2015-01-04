@@ -17,15 +17,7 @@ class Chief implements CommandBus
     {
         $handler = $this->findHandler($command);
 
-        if ($handler instanceof CommandHandler) {
-            return $handler->handle($command);
-        }
-
-        if (is_callable($handler)) {
-            return $handler($command);
-        }
-
-        throw new \InvalidArgumentException('Could not find a handler for [' . get_class($command) . ']');
+        return $this->handle($command, $handler);
     }
 
     /**
@@ -44,7 +36,8 @@ class Chief implements CommandBus
      * Find a pushed handler
      *
      * @param Command $command
-     * @return null
+     * @return mixed
+     * @throws \InvalidArgumentException
      */
     protected function findHandler(Command $command)
     {
@@ -54,7 +47,35 @@ class Chief implements CommandBus
             }
         }
 
-        return null;
+        throw new \InvalidArgumentException('Could not find handler for command [' . get_class($command) . ']');
     }
 
+    protected function handle(Command $command, $handler)
+    {
+        if ($handler instanceof CommandHandler) {
+            return $handler->handle($command);
+        }
+
+        if (is_callable($handler)) {
+            return $handler($command);
+        }
+
+        if (is_string($handler)) {
+            $handler = $this->makeHandler($handler);
+            return $this->handle($command, $handler);
+        }
+
+        throw new \InvalidArgumentException('Could not handler [' . get_class($command) . '] with handler [' . get_class($handler) . ']');
+    }
+
+    /**
+     * Make a CommandHandler class from its class name
+     *
+     * @param $handler
+     * @return mixed
+     */
+    protected function makeHandler($handler)
+    {
+        return new $handler;
+    }
 }
