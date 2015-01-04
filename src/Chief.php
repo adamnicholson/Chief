@@ -57,7 +57,7 @@ class Chief implements CommandBus
         }
 
         if (is_string($handler)) {
-            return $this->pushHandler($commandName, new StringCommandHandler($handler));
+            return $this->pushHandler($commandName, new StringCommandHandler($handler, $this->container));
         }
 
         throw new \InvalidArgumentException('Could not push handler. Command Handlers should be an
