@@ -45,9 +45,18 @@ class ChiefTest extends ChiefTestCase
         $chief->execute($command);
         $this->assertEquals($command->handled, true);
     }
+
+    public function testExecuteThrowsExceptionWhenNoHandler()
+    {
+        $chief = new Chief();
+        $command = new ChiefTestCommandWithoutHandlerStub;
+        $this->setExpectedException('Exception');
+        $chief->execute($command);
+    }
 }
 
 class ChiefTestCommandStub implements Command {}
+class ChiefTestCommandWithoutHandlerStub implements Command {}
 class ChiefTestCommandStubHandler implements CommandHandler
 {
     /**
