@@ -31,7 +31,11 @@ class ChiefTest extends ChiefTestCase
 
     public function testExecuteFiresHandlerAttachedByString()
     {
-        // @todo
+        $chief = new Chief();
+        $chief->pushHandler('Chief\ChiefTestCommandStub', 'Chief\ChiefTestCommandHandlerStub');
+        $command = new ChiefTestCommandStub;
+        $chief->execute($command);
+        $this->assertEquals($command->handled, true);
     }
 }
 
