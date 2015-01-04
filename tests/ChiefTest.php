@@ -4,7 +4,6 @@ namespace Chief;
 
 use Chief\Stubs\SelfHandlingCommand;
 use Chief\Stubs\TestCommand;
-use Chief\Stubs\TestCommandHandler;
 use Chief\Stubs\TestCommandWithoutHandler;
 
 class ChiefTest extends ChiefTestCase
@@ -17,10 +16,10 @@ class ChiefTest extends ChiefTestCase
     public function testExecuteFiresHandlerAttachedByInstance()
     {
         $bus = new Chief();
-        $bus->pushHandler('Chief\Stubs\TestCommand', new TestCommandHandler);
+        $bus->pushHandler('Chief\Stubs\TestCommand', $handler = $this->getMock('Chief\CommandHandler'));
         $command = new TestCommand;
+        $handler->expects($this->once())->method('handle')->with($command);
         $bus->execute($command);
-        $this->assertEquals($command->handled, true);
     }
 
     public function testExecuteFiresHandlerAttachedByCallable()
