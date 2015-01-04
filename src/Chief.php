@@ -19,7 +19,7 @@ class Chief implements CommandBus
      */
     protected $resolver;
 
-    public function __construct(CommandHandlerResolver $resolver = null, Container $container = null)
+    public function __construct(Container $container = null, CommandHandlerResolver $resolver = null)
     {
         $this->container = $container ?: new NativeContainer;
         $this->resolver = $resolver ?: new NativeCommandHandlerResolver($this->container);
