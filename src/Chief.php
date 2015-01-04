@@ -7,8 +7,8 @@ use Chief\Handlers\StringCommandHandler;
 
 class Chief implements CommandBus
 {
-    protected $handlers = [];
-    protected $decorators = [];
+    protected $handlers = array();
+    protected $decorators = array();
 
     /**
      * @var Container
