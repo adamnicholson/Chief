@@ -31,7 +31,8 @@ class Chief implements CommandBus
      *
      * @param string $commandName
      * @param CommandHandler|callable|string $handler
-     * @return mixed
+     * @return bool
+     * @throws \InvalidArgumentException
      */
     public function pushHandler($commandName, $handler)
     {
@@ -47,14 +48,16 @@ class Chief implements CommandBus
         if (is_string($handler)) {
             return $this->pushHandler($commandName, new StringCommandHandler($handler));
         }
+
+        throw new \InvalidArgumentException('Could not push handler. Command Handlers should be an
+            instance of Chief\CommandHandler');
     }
 
     /**
-     * Find a pushed handler
+     * Find a CommandHandler for a given Command
      *
      * @param Command $command
      * @return CommandHandler
-     * @throws \InvalidArgumentException
      */
     protected function findHandler(Command $command)
     {

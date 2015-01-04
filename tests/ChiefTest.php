@@ -57,4 +57,11 @@ class ChiefTest extends ChiefTestCase
         $this->setExpectedException('Exception');
         $bus->execute($command);
     }
+
+    public function testPushHandlerThrowsExceptionWhenObjectPassedNotACommandHandler()
+    {
+        $bus = new Chief();
+        $this->setExpectedException('InvalidArugmentException');
+        $bus->pushHandler('Chief\Stubs\TestCommand', new \stdClass);
+    }
 }
