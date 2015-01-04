@@ -35,7 +35,7 @@ class Chief implements CommandBus
      */
     public function execute(Command $command)
     {
-        $handler = $this->findHandler($command);
+        $handler = $this->resolveHandler($command);
 
         $this->executeDecorators($command);
 
@@ -86,7 +86,7 @@ class Chief implements CommandBus
      * @param Command $command
      * @return CommandHandler
      */
-    protected function findHandler(Command $command)
+    protected function resolveHandler(Command $command)
     {
         // Find the CommandHandler if it has been manually defined using pushHandler()
         foreach ($this->handlers as $handlerCommand => $handler) {
