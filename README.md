@@ -16,6 +16,51 @@ Install the latest version with `composer require adamnicholson/chief`, or see [
 - Lightweight interface
 - Framework agnostic
 
+## Command Bus?
+
+A Command Bus is an object oriented design pattern which involved 3 classes:
+
+1. `Command`
+2. `CommandHandler`
+3. `CommandBus`
+
+In a nutshell, a `Command` is just a tiny object containing some data (either in public properties or in getters/setters). This `Command` is then passed the `execute()` method on the `CommandBus`, which is responsible for further passing the `Command` to the `handle()` method on a `CommandHandler`.
+
+For every `Command` in your application, there should be a corresponding `CommandHandler`.
+
+In the below example, we demonstrate how a command bus design could handle registering a new user in your system:
+
+
+	use Chief\Command;
+	use Chief\CommandHandler;
+	use Chief\Chief;
+	
+	class RegisterUserCommand implements Chief {
+		public $email;
+		public $name;
+	}
+	
+	class RegisterUserCommandHandler implements CommandHandler {
+		public function handle(Command $command) {
+			Users::create([
+				'email' => $command->email,
+				'name' => $command->name
+			]);
+			Mailer::sendWelcomeEmail($command->email);
+		}
+	}
+	
+	$chief = new Chief;
+
+	$registerUserCommand = new RegisterUserCommand;
+	$registerUserCommand->email = 'adamnicholson10@gmail.com';
+	$registerUserCommand->name = 'Adam Nicholson';
+
+	$chief->execute($registerUserCommand);
+
+
+
+
 ## Usage
 
 We'll use the 2 below classes for the usage examples:
