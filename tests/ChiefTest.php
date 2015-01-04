@@ -4,6 +4,7 @@ namespace Chief;
 
 use Chief\Busses\SynchronousCommandBus;
 use Chief\Resolvers\NativeCommandHandlerResolver;
+use Chief\Stubs\LogDecoratorCommandBus;
 use Chief\Stubs\SelfHandlingCommand;
 use Chief\Stubs\TestCommand;
 use Chief\Stubs\TestCommandWithoutHandler;
@@ -69,5 +70,18 @@ class ChiefTest extends ChiefTestCase
         $bus = new Chief();
         $command = new SelfHandlingCommand;
         $bus->execute($command);
+    }
+
+    public function testDecoratorCommandBus()
+    {
+        $bus = new LogDecoratorCommandBus(
+            $logger = $this->getMock('Psr\Log\LoggerInterface'),
+            $innerBus = $this->getMock('Chief\Busses\SynchronousCommandBus')
+        );
+        $chief = new Chief($bus);
+        $command = new TestCommand;
+        $logger->expects($this->exactly(2))->method('info');
+        $innerBus->expects($this->once())->method('execute')->with($command);
+        $chief->execute($command);
     }
 }

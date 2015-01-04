@@ -12,10 +12,10 @@ use Chief\Busses\SynchronousCommandBus;
 class Chief implements CommandBus
 {
     /**
-     * @var CommandHandlerResolver
+     * Constructor
+     *
+     * @param CommandBus $bus
      */
-    protected $resolver;
-
     public function __construct(CommandBus $bus = null)
     {
         $this->bus = $bus ?: new SynchronousCommandBus();
