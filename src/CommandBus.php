@@ -20,4 +20,12 @@ interface CommandBus
      * @return mixed
      */
     public function pushHandler($commandName, $handler);
+
+    /**
+     * Add a decorator
+     *
+     * @param CommandBus $decorator
+     * @return mixed
+     */
+    public function addDecorator(CommandBus $decorator);
 }

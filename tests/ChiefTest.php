@@ -71,4 +71,14 @@ class ChiefTest extends ChiefTestCase
         $command = new SelfHandlingCommand;
         $bus->execute($command);
     }
+
+    public function testExecuteFiresDecorators()
+    {
+        $bus = new Chief();
+        $decorator = $this->getMock('Chief\CommandBus');
+        $bus->addDecorator($decorator);
+        $command = new SelfHandlingCommand;
+        $decorator->expects($this->once())->method('execute')->with($command);
+        $bus->execute($command);
+    }
 }

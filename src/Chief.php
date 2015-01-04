@@ -8,6 +8,7 @@ use Chief\Handlers\StringCommandHandler;
 class Chief implements CommandBus
 {
     protected $handlers = [];
+    protected $decorators = [];
 
     /**
      * @var Container
@@ -34,7 +35,11 @@ class Chief implements CommandBus
      */
     public function execute(Command $command)
     {
-        return $this->findHandler($command)->handle($command);
+        $handler = $this->findHandler($command);
+
+        $this->executeDecorators($command);
+
+        return $handler->handle($command);
     }
 
     /**
@@ -65,6 +70,17 @@ class Chief implements CommandBus
     }
 
     /**
+     * Add a CommandBus decorator
+     *
+     * @param CommandBus $decorator
+     * @return void
+     */
+    public function addDecorator(CommandBus $decorator)
+    {
+        $this->decorators[] = $decorator;
+    }
+
+    /**
      * Find a CommandHandler for a given Command
      *
      * @param Command $command
@@ -86,5 +102,18 @@ class Chief implements CommandBus
 
         // If we got here then we couldn't find the command, so ask the Resolver to find it
         return $this->resolver->resolve(get_class($command));
+    }
+
+    /**
+     * Execute all the CommandBus decorators for a Command
+     *
+     * @param Command $command
+     * @return void
+     */
+    protected function executeDecorators(Command $command)
+    {
+        foreach ($this->decorators as $decorator) {
+            $decorator->execute($command);
+        }
     }
 }
