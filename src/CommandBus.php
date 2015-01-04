@@ -15,7 +15,7 @@ interface CommandBus
     /**
      * Map a command to a callable handler
      *
-     * @param $commandName
+     * @param string $commandName
      * @param CommandHandler|callable|string $handler
      * @return mixed
      */
