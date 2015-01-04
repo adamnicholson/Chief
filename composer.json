@@ -1,0 +1,17 @@
+{
+    "name": "adamnicholson/chief",
+    "description": "A simple command bus for PHP",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Adam Nicholson",
+            "email": "adamnicholson10@gmail.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Chief\\": ["src/", "tests/"]
+        }
+    }
+}
