@@ -36,7 +36,7 @@ class Chief implements CommandBus
      * Find a pushed handler
      *
      * @param Command $command
-     * @return mixed
+     * @return CommandHandler|callable|string
      * @throws \InvalidArgumentException
      */
     protected function findHandler(Command $command)
@@ -47,9 +47,19 @@ class Chief implements CommandBus
             }
         }
 
+        if (!is_null($handler = $this->resolveHandler($command))) {
+            return $handler;
+        }
+
         throw new \InvalidArgumentException('Could not find handler for command [' . get_class($command) . ']');
     }
 
+    /**
+     * @param Command $command
+     * @param CommandHandler|callable|string $handler
+     * @return mixed
+     * @throws \InvalidArgumentException
+     */
     protected function handle(Command $command, $handler)
     {
         if ($handler instanceof CommandHandler) {
@@ -65,7 +75,24 @@ class Chief implements CommandBus
             return $this->handle($command, $handler);
         }
 
-        throw new \InvalidArgumentException('Could not handler [' . get_class($command) . '] with handler [' . get_class($handler) . ']');
+        throw new \InvalidArgumentException('Could not handle [' . get_class($command) . '] with handler [' . get_class($handler) . ']');
+    }
+
+    /**
+     * Automatically detect the name of a CommandHandler from a Command
+     *
+     * @param Command $command
+     * @return null|string
+     */
+    protected function resolveHandler(Command $command)
+    {
+        $commandName = get_class($command);
+
+        if (class_exists($commandName . 'Handler')) {
+            return $commandName . 'Handler';
+        }
+
+        return null;
     }
 
     /**
