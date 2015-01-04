@@ -11,47 +11,47 @@ class ChiefTest extends ChiefTestCase
 
     public function testExecuteFiresHandlerAttachedByInstance()
     {
-        $chief = new Chief();
-        $chief->pushHandler('Chief\ChiefTestCommandStub', new ChiefTestCommandStubHandler);
+        $bus = new Chief();
+        $bus->pushHandler('Chief\ChiefTestCommandStub', new ChiefTestCommandStubHandler);
         $command = new ChiefTestCommandStub;
-        $chief->execute($command);
+        $bus->execute($command);
         $this->assertEquals($command->handled, true);
     }
 
     public function testExecuteFiresHandlerAttachedByCallable()
     {
-        $chief = new Chief();
-        $chief->pushHandler('Chief\ChiefTestCommandStub', function (Command $command) {
+        $bus = new Chief();
+        $bus->pushHandler('Chief\ChiefTestCommandStub', function (Command $command) {
             $command->handled = true;
         });
         $command = new ChiefTestCommandStub;
-        $chief->execute($command);
+        $bus->execute($command);
         $this->assertEquals($command->handled, true);
     }
 
     public function testExecuteFiresHandlerAttachedByString()
     {
-        $chief = new Chief();
-        $chief->pushHandler('Chief\ChiefTestCommandStub', 'Chief\ChiefTestCommandStubHandler');
+        $bus = new Chief();
+        $bus->pushHandler('Chief\ChiefTestCommandStub', 'Chief\ChiefTestCommandStubHandler');
         $command = new ChiefTestCommandStub;
-        $chief->execute($command);
+        $bus->execute($command);
         $this->assertEquals($command->handled, true);
     }
 
     public function testExecuteFiresByAutoResolution()
     {
-        $chief = new Chief();
+        $bus = new Chief();
         $command = new ChiefTestCommandStub;
-        $chief->execute($command);
+        $bus->execute($command);
         $this->assertEquals($command->handled, true);
     }
 
     public function testExecuteThrowsExceptionWhenNoHandler()
     {
-        $chief = new Chief();
+        $bus = new Chief();
         $command = new ChiefTestCommandWithoutHandlerStub;
         $this->setExpectedException('Exception');
-        $chief->execute($command);
+        $bus->execute($command);
     }
 }
 
