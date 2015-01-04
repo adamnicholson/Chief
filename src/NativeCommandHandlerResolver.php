@@ -2,6 +2,9 @@
 
 namespace Chief;
 
+
+use Chief\Exceptions\UnresolvableCommandHandlerException;
+
 class NativeCommandHandlerResolver implements CommandHandlerResolver
 {
     /**
@@ -11,14 +14,14 @@ class NativeCommandHandlerResolver implements CommandHandlerResolver
      * @return CommandHandler
      * @throws
      */
-    public function resolveHandler($command)
+    public function resolve($command)
     {
         $class = $command . 'Handler';
         if (class_exists($class)) {
             return new $class;
         }
 
-        throw new \Exception('Could not resolve a handler for ');
+        throw new UnresolvableCommandHandlerException('Could not resolve a handler for ');
     }
 
 }
