@@ -12,7 +12,7 @@ class ChiefTest extends ChiefTestCase
     public function testExecuteFiresHandlerAttachedByInstance()
     {
         $chief = new Chief();
-        $chief->pushHandler('Chief\ChiefTestCommandStub', new ChiefTestCommandHandlerStub);
+        $chief->pushHandler('Chief\ChiefTestCommandStub', new ChiefTestCommandStubHandler);
         $command = new ChiefTestCommandStub;
         $chief->execute($command);
         $this->assertEquals($command->handled, true);
@@ -32,7 +32,7 @@ class ChiefTest extends ChiefTestCase
     public function testExecuteFiresHandlerAttachedByString()
     {
         $chief = new Chief();
-        $chief->pushHandler('Chief\ChiefTestCommandStub', 'Chief\ChiefTestCommandHandlerStub');
+        $chief->pushHandler('Chief\ChiefTestCommandStub', 'Chief\ChiefTestCommandStubHandler');
         $command = new ChiefTestCommandStub;
         $chief->execute($command);
         $this->assertEquals($command->handled, true);
@@ -40,7 +40,7 @@ class ChiefTest extends ChiefTestCase
 }
 
 class ChiefTestCommandStub implements Command {}
-class ChiefTestCommandHandlerStub implements CommandHandler
+class ChiefTestCommandStubHandler implements CommandHandler
 {
     /**
      * Handle a command execution
