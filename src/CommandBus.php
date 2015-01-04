@@ -25,8 +25,8 @@ interface CommandBus
      * Map a command to a callable handler
      *
      * @param $commandName
-     * @param callable $handler
+     * @param CommandHandler $handler
      * @return mixed
      */
-    public function pushHandler($commandName, callable $handler);
+    public function pushHandler($commandName, CommandHandler $handler);
 }

@@ -10,15 +10,19 @@ class Chief implements CommandBus
      * Execute a command
      *
      * @param Command $command
-     * @return mixed
+     * @throws \InvalidArgumentException
+     * @return void
      */
     public function execute(Command $command)
     {
         $handler = $this->findHandler($command);
 
-        if (is_callable($handler)) {
-            $handler($command);
+        if ($handler instanceof CommandHandler) {
+            $handler->handle($command);
+            return;
         }
+
+        throw new \InvalidArgumentException('Could not find a handler for [' . get_class($command) . ']');
     }
 
     /**
@@ -34,13 +38,13 @@ class Chief implements CommandBus
     }
 
     /**
-     * Map a command to a callable handler
+     * Map a command to a CommandHandler
      *
      * @param $commandName
-     * @param callable $handler
+     * @param CommandHandler $handler
      * @return mixed
      */
-    public function pushHandler($commandName, callable $handler)
+    public function pushHandler($commandName, CommandHandler $handler)
     {
         $this->handlers[$commandName] = $handler;
     }

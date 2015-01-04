@@ -11,16 +11,31 @@ class ChiefTest extends ChiefTestCase
 
     public function testExecuteFiresHandlerAttachedByPushHandler()
     {
-        $foo = new \stdClass();
-        $foo->called = false;
-        $handler = function (Command $command) use ($foo) {
-            $foo->called = true;
-        };
         $chief = new Chief();
-        $chief->pushHandler('Chief\ChiefTestCommandStub', $handler);
-        $chief->execute(new ChiefTestCommandStub);
-        $this->assertEquals($foo->called, true);
+        $chief->pushHandler('Chief\ChiefTestCommandStub', new ChiefTestCommandHandlerStub);
+        $command = new ChiefTestCommandStub;
+        $chief->execute($command);
+        $this->assertEquals($command->handled, true);
+    }
+
+    public function testExecuteFiresHandlerAttachedByMapHandler()
+    {
+        // @todo
     }
 }
 
 class ChiefTestCommandStub implements Command {}
+class ChiefTestCommandHandlerStub implements CommandHandler
+{
+    /**
+     * Handle a command execution
+     *
+     * @param Command $command
+     * @return mixed
+     */
+    public function handle(Command $command)
+    {
+        $command->handled = true;
+    }
+
+}
