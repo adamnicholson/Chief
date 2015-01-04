@@ -9,7 +9,7 @@ class ChiefTest extends ChiefTestCase
         $this->assertTrue(new Chief instanceof CommandBus);
     }
 
-    public function testExecuteFiresHandlerAttachedByPushHandler()
+    public function testExecuteFiresHandlerAttachedByInstance()
     {
         $chief = new Chief();
         $chief->pushHandler('Chief\ChiefTestCommandStub', new ChiefTestCommandHandlerStub);
@@ -18,9 +18,14 @@ class ChiefTest extends ChiefTestCase
         $this->assertEquals($command->handled, true);
     }
 
-    public function testExecuteFiresHandlerAttachedByMapHandler()
+    public function testExecuteFiresHandlerAttachedByCallable()
     {
+        // @todo
+    }
 
+    public function testExecuteFiresHandlerAttachedByString()
+    {
+        // @todo
     }
 }
 
