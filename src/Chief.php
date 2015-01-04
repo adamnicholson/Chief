@@ -2,6 +2,8 @@
 
 namespace Chief;
 
+use Chief\Handlers\CallableCommandHandler;
+
 class Chief implements CommandBus
 {
     protected $handlers = [];
@@ -34,14 +36,42 @@ class Chief implements CommandBus
      */
     public function pushHandler($commandName, $handler)
     {
-        $this->handlers[$commandName] = $handler;
+        if ($handler instanceof CommandHandler) {
+            $this->handlers[$commandName] = $handler;
+            return true;
+        }
+
+        if (is_callable($handler)) {
+            $this->handlers[$commandName] = new CallableCommandHandler($handler);
+            return true;
+        }
+    }
+
+    /**
+     * @param Command $command
+     * @param CommandHandler|string $handler
+     * @return mixed
+     * @throws \InvalidArgumentException
+     */
+    protected function handle(Command $command, $handler)
+    {
+        if ($handler instanceof CommandHandler) {
+            return $handler->handle($command);
+        }
+
+        if (is_string($handler)) {
+            $handler = $this->makeHandler($handler);
+            return $this->handle($command, $handler);
+        }
+
+        throw new \InvalidArgumentException('Could not handle [' . get_class($command) . '] with handler [' . get_class($handler) . ']');
     }
 
     /**
      * Find a pushed handler
      *
      * @param Command $command
-     * @return CommandHandler|callable|string
+     * @return CommandHandler|string
      * @throws \InvalidArgumentException
      */
     protected function findHandler(Command $command)
@@ -57,30 +87,6 @@ class Chief implements CommandBus
         }
 
         throw new \InvalidArgumentException('Could not find handler for command [' . get_class($command) . ']');
-    }
-
-    /**
-     * @param Command $command
-     * @param CommandHandler|callable|string $handler
-     * @return mixed
-     * @throws \InvalidArgumentException
-     */
-    protected function handle(Command $command, $handler)
-    {
-        if ($handler instanceof CommandHandler) {
-            return $handler->handle($command);
-        }
-
-        if (is_callable($handler)) {
-            return $handler($command);
-        }
-
-        if (is_string($handler)) {
-            $handler = $this->makeHandler($handler);
-            return $this->handle($command, $handler);
-        }
-
-        throw new \InvalidArgumentException('Could not handle [' . get_class($command) . '] with handler [' . get_class($handler) . ']');
     }
 
     /**
