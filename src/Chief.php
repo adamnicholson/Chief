@@ -6,6 +6,11 @@ class Chief implements CommandBus
 {
     protected $handlers = [];
 
+    public function __construct(CommandHandlerResolver $resolver = null)
+    {
+        $this->resolver = $resolver ?: new NativeCommandHandlerResolver;
+    }
+
     /**
      * Execute a command
      *
@@ -86,13 +91,7 @@ class Chief implements CommandBus
      */
     protected function resolveHandler(Command $command)
     {
-        $commandName = get_class($command);
-
-        if (class_exists($commandName . 'Handler')) {
-            return $commandName . 'Handler';
-        }
-
-        return null;
+        return $this->resolver->resolveHandler($command);
     }
 
     /**
