@@ -7,6 +7,11 @@ use Chief\CommandHandler;
 
 class CallableCommandHandler implements CommandHandler
 {
+    /**
+     * @var callable
+     */
+    protected $handler;
+
     public function __construct(callable $handler)
     {
         $this->handler = $handler;

@@ -4,12 +4,25 @@ namespace Chief\Handlers;
 
 use Chief\Command;
 use Chief\CommandHandler;
+use Chief\Container;
 
 class StringCommandHandler implements CommandHandler
 {
-    public function __construct($string)
+    /**
+     * @var \Chief\Container
+     */
+    protected $container;
+
+    /**
+     * @var \Chief\CommandHandler
+     */
+    protected $handler;
+
+    public function __construct($string, Container $container)
     {
-        $this->handler = new $string;
+        $this->container = $container;
+
+        $this->handler = $this->container->make($string);
     }
 
     /**

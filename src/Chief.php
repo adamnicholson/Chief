@@ -9,9 +9,20 @@ class Chief implements CommandBus
 {
     protected $handlers = [];
 
-    public function __construct(CommandHandlerResolver $resolver = null)
+    /**
+     * @var Container
+     */
+    protected $container;
+
+    /**
+     * @var CommandHandlerResolver
+     */
+    protected $resolver;
+
+    public function __construct(CommandHandlerResolver $resolver = null, Container $container = null)
     {
-        $this->resolver = $resolver ?: new NativeCommandHandlerResolver;
+        $this->container = $container ?: new NativeContainer;
+        $this->resolver = $resolver ?: new NativeCommandHandlerResolver($this->container);
     }
 
     /**
