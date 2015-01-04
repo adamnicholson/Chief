@@ -7,8 +7,8 @@ interface CommandHandlerResolver
     /**
      * Automatically resolve a handler from a command
      *
-     * @param string $command
+     * @param Command $command
      * @return CommandHandler
      */
-    public function resolve($command);
+    public function resolve(Command $command);
 }

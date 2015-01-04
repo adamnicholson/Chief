@@ -28,5 +28,4 @@ class CallableCommandHandler implements CommandHandler
         $callableHandler = $this->handler;
         return $callableHandler($command);
     }
-
 }

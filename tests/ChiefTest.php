@@ -2,6 +2,8 @@
 
 namespace Chief;
 
+use Chief\Busses\SynchronousCommandBus;
+use Chief\Resolvers\NativeCommandHandlerResolver;
 use Chief\Stubs\SelfHandlingCommand;
 use Chief\Stubs\TestCommand;
 use Chief\Stubs\TestCommandWithoutHandler;
@@ -13,10 +15,20 @@ class ChiefTest extends ChiefTestCase
         $this->assertTrue(new Chief instanceof CommandBus);
     }
 
-    public function testExecuteFiresHandlerAttachedByInstance()
+    public function testExecuteFiresByAutoResolution()
     {
         $bus = new Chief();
-        $bus->pushHandler('Chief\Stubs\TestCommand', $handler = $this->getMock('Chief\CommandHandler'));
+        $command = new TestCommand;
+        $bus->execute($command);
+        $this->assertEquals($command->handled, true);
+    }
+
+    public function testExecuteFiresHandlerAttachedByInstance()
+    {
+        $resolver = new NativeCommandHandlerResolver;
+        $resolver->bindHandler('Chief\Stubs\TestCommand', $handler = $this->getMock('Chief\CommandHandler'));
+        $syncBus = new SynchronousCommandBus($resolver);
+        $bus = new Chief($syncBus);
         $command = new TestCommand;
         $handler->expects($this->once())->method('handle')->with($command);
         $bus->execute($command);
@@ -24,10 +36,11 @@ class ChiefTest extends ChiefTestCase
 
     public function testExecuteFiresHandlerAttachedByCallable()
     {
-        $bus = new Chief();
-        $bus->pushHandler('Chief\Stubs\TestCommand', function (Command $command) {
-            $command->handled = true;
+        $resolver = new NativeCommandHandlerResolver;
+        $resolver->bindHandler('Chief\Stubs\TestCommand', function (Command $command) {
+                $command->handled = true;
         });
+        $bus = new Chief(new SynchronousCommandBus($resolver));
         $command = new TestCommand;
         $bus->execute($command);
         $this->assertEquals($command->handled, true);
@@ -35,16 +48,9 @@ class ChiefTest extends ChiefTestCase
 
     public function testExecuteFiresHandlerAttachedByString()
     {
-        $bus = new Chief();
-        $bus->pushHandler('Chief\Stubs\TestCommand', 'Chief\Stubs\TestCommandHandler');
-        $command = new TestCommand;
-        $bus->execute($command);
-        $this->assertEquals($command->handled, true);
-    }
-
-    public function testExecuteFiresByAutoResolution()
-    {
-        $bus = new Chief();
+        $resolver = new NativeCommandHandlerResolver;
+        $resolver->bindHandler('Chief\Stubs\TestCommand', 'Chief\Stubs\TestCommandHandler');
+        $bus = new Chief(new SynchronousCommandBus($resolver));
         $command = new TestCommand;
         $bus->execute($command);
         $this->assertEquals($command->handled, true);
@@ -58,27 +64,10 @@ class ChiefTest extends ChiefTestCase
         $bus->execute($command);
     }
 
-    public function testPushHandlerThrowsExceptionWhenObjectPassedNotACommandHandler()
-    {
-        $bus = new Chief();
-        $this->setExpectedException('InvalidArgumentException');
-        $bus->pushHandler('Chief\Stubs\TestCommand', new \stdClass);
-    }
-
     public function testCommandCanHandleItselfIfImplementsCommandHandler()
     {
         $bus = new Chief();
         $command = new SelfHandlingCommand;
-        $bus->execute($command);
-    }
-
-    public function testExecuteFiresDecorators()
-    {
-        $bus = new Chief();
-        $decorator = $this->getMock('Chief\CommandBus');
-        $bus->addDecorator($decorator);
-        $command = new SelfHandlingCommand;
-        $decorator->expects($this->once())->method('execute')->with($command);
         $bus->execute($command);
     }
 }
