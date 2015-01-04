@@ -1,6 +1,6 @@
 #Chief
 
-Chief is a lightweight command bus package for PHP 5.3+.
+Chief is a lightweight command bus package for PHP 5.4+.
 
 ## Installation
 
