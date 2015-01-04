@@ -127,8 +127,8 @@ All Chief decorators must implement the `CommandBus` interface. For the Log exam
 The `execute()` method on all decorators will be called before the `CommandHandler` `handle()` method is called.
 
 
-## IoC Container Integration
-Want to use your own IoC Container for handling constructor dependency injection? No problem, just create your own class which implements `Chief\Container` and pass it to Chief.
+## Dependency Injection Container Integration
+Want to use your own Dependency Injection Container? No problem, just create your own class which implements `Chief\Container` and pass it to Chief.
 
 For example, if you're using Laravel:
 
