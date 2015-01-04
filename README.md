@@ -1,5 +1,7 @@
 #Chief
 
+[![Build Status](https://travis-ci.org/adamnicholson/chief.svg?branch=master)](https://travis-ci.org/adamnicholson/chief)
+
 Chief is a lightweight command bus package for PHP 5.4+.
 
 ## Installation
