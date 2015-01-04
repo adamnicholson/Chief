@@ -2,6 +2,7 @@
 
 namespace Chief;
 
+use Chief\Stubs\SelfHandlingCommand;
 use Chief\Stubs\TestCommand;
 use Chief\Stubs\TestCommandHandler;
 use Chief\Stubs\TestCommandWithoutHandler;
@@ -63,5 +64,12 @@ class ChiefTest extends ChiefTestCase
         $bus = new Chief();
         $this->setExpectedException('InvalidArgumentException');
         $bus->pushHandler('Chief\Stubs\TestCommand', new \stdClass);
+    }
+
+    public function testCommandCanHandleItselfIfImplementsCommandHandler()
+    {
+        $bus = new Chief();
+        $command = new SelfHandlingCommand;
+        $bus->execute($command);
     }
 }

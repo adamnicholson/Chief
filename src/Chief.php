@@ -72,12 +72,19 @@ class Chief implements CommandBus
      */
     protected function findHandler(Command $command)
     {
+        // Find the CommandHandler if it has been manually defined using pushHandler()
         foreach ($this->handlers as $handlerCommand => $handler) {
             if ($handlerCommand == get_class($command)) {
                 return $handler;
             }
         }
 
+        // If the Command also implements CommandHandler, then it can handle() itself
+        if ($command instanceof CommandHandler) {
+            return $command;
+        }
+
+        // If we got here then we couldn't find the command, so ask the Resolver to find it
         return $this->resolver->resolve(get_class($command));
     }
 }
