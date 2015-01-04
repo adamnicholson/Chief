@@ -20,7 +20,7 @@ class ChiefTest extends ChiefTestCase
 
     public function testExecuteFiresHandlerAttachedByMapHandler()
     {
-        // @todo
+
     }
 }
 

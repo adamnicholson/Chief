@@ -13,20 +13,11 @@ interface CommandBus
     public function execute(Command $command);
 
     /**
-     * Map a command to a handler by name
-     *
-     * @param $commandName
-     * @param $handlerName
-     * @return mixed
-     */
-    public function mapHandler($commandName, $handlerName);
-
-    /**
      * Map a command to a callable handler
      *
      * @param $commandName
-     * @param CommandHandler $handler
+     * @param CommandHandler|callable|string $handler
      * @return mixed
      */
-    public function pushHandler($commandName, CommandHandler $handler);
+    public function pushHandler($commandName, $handler);
 }

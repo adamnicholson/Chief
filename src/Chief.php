@@ -26,29 +26,23 @@ class Chief implements CommandBus
     }
 
     /**
-     * Map a command to a handler by name
-     *
-     * @param $commandName
-     * @param $handlerName
-     * @return mixed
-     */
-    public function mapHandler($commandName, $handlerName)
-    {
-        // TODO: Implement mapHandler() method.
-    }
-
-    /**
      * Map a command to a CommandHandler
      *
      * @param $commandName
      * @param CommandHandler $handler
      * @return mixed
      */
-    public function pushHandler($commandName, CommandHandler $handler)
+    public function pushHandler($commandName, $handler)
     {
         $this->handlers[$commandName] = $handler;
     }
 
+    /**
+     * Find a pushed handler
+     *
+     * @param Command $command
+     * @return null
+     */
     protected function findHandler(Command $command)
     {
         foreach ($this->handlers as $handlerCommand => $handler) {
