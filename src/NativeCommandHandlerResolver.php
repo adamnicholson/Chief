@@ -7,7 +7,7 @@ class NativeCommandHandlerResolver implements CommandHandlerResolver
     /**
      * Automatically resolve a handler from a command
      *
-     * @param Command $command
+     * @param string $command
      * @return CommandHandler
      * @throws
      */

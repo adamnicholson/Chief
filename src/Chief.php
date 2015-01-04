@@ -23,9 +23,7 @@ class Chief implements CommandBus
      */
     public function execute(Command $command)
     {
-        $handler = $this->findHandler($command);
-
-        return $this->handle($command, $handler);
+        return $this->findHandler($command)->handle($command);
     }
 
     /**
@@ -52,30 +50,10 @@ class Chief implements CommandBus
     }
 
     /**
-     * @param Command $command
-     * @param CommandHandler|string $handler
-     * @return mixed
-     * @throws \InvalidArgumentException
-     */
-    protected function handle(Command $command, $handler)
-    {
-        if ($handler instanceof CommandHandler) {
-            return $handler->handle($command);
-        }
-
-        if (is_string($handler)) {
-            $handler = $this->makeHandler($handler);
-            return $this->handle($command, $handler);
-        }
-
-        throw new \InvalidArgumentException('Could not handle [' . get_class($command) . '] with handler [' . get_class($handler) . ']');
-    }
-
-    /**
      * Find a pushed handler
      *
      * @param Command $command
-     * @return CommandHandler|string
+     * @return CommandHandler
      * @throws \InvalidArgumentException
      */
     protected function findHandler(Command $command)
@@ -86,29 +64,6 @@ class Chief implements CommandBus
             }
         }
 
-        return $this->resolveHandler($command);
-    }
-
-    /**
-     * Automatically detect the name of a CommandHandler from a Command
-     *
-     * @param Command|string $command
-     * @return null|string
-     */
-    protected function resolveHandler($command)
-    {
-        $commandName = is_string($command) ? $command : get_class($command);
-        return $this->resolver->resolveHandler($commandName);
-    }
-
-    /**
-     * Make a CommandHandler class from its class name
-     *
-     * @param $handler
-     * @return mixed
-     */
-    protected function makeHandler($handler)
-    {
-        return new $handler;
+        return $this->resolver->resolveHandler(get_class($command));
     }
 }
