@@ -133,6 +133,25 @@ Alternatively, you may want to simply allow a `Command` object to execute itself
     $chief = new Chief;
     $chief->execute(new MyCommand);
 
+## Decorators
+Imagine you want to log every command execution. You could do this by adding a call to your logger in every `CommandHandler`, however a much more elegant solution is to use decorators.
+
+Chief provides you with a number of decorators out-the-box:
+
+- *LoggingDecorator*: Log before and after all executions to a `Psr\Log\LoggerInterface`
+- *EventDispatchingDecorator*: Dispatch an event to a `Chief\Decorators\EventDispatcher` after every command execution.
+
+Registering a decorator:
+
+    $chief = new Chief(new SynchronousCommandBus, [new LoggingDecorator($logger)]);
+    
+Registering multiple decorators:
+
+    $chief = new Chief(new SynchronousCommandBus, [
+        new LoggingDecorator($logger),
+        new EventDispatchingDecorator($eventDispatcher)
+    ]);
+    
 
 ## Dependency Injection Container Integration
 Chief uses a `CommandHandlerResolver` class which is responsible for finding and instantiating the relevant `CommandHandler` for a given `Command`. 
@@ -150,35 +169,7 @@ For example, if you're using Laravel:
 	$resolver = new Chief\NativeCommandHandlerResolver(new IlluminateContainer);
     $chief = new Chief($resolver);
     $chief->execute(new MyCommand);
-
-
-## Decorators
-Imagine you want to log every command execution. You could do this by adding a call to your logger in every `CommandHandler`, however a much more elegant solution is to use decorators. 
-
-Below is an example of a decorator for logging all commands executed by the bus.
-
-    class LogDecoratorCommandBus implements CommandBus
-	{
-	    public function __construct(LoggerInterface $logger, CommandBus $commandBus)
-	    {
-	        $this->logger = $logger;
-	        $this->commandBus = $commandBus;
-	    }
-
-	    public function execute(Command $command)
-	    {
-	        $this->logger->info('Started executing command ['.get_class($command).']');
-	        $this->commandBus->execute($command);
-	        $this->logger->info('Finished executing command ['.get_class($command).]');
-	    }
-	}
     
-	$bus = new LogDecoratorCommandBus(
-        $logger = $logger,
-        $innerBus = new Chief\Busses\SynchronousCommandBus
-    );
-    $bus->execute(new MyCommand);
-
 
 ## Author
 
