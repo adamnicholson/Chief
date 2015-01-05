@@ -61,10 +61,12 @@ class NativeCommandHandlerResolver implements CommandHandlerResolver
             return true;
         }
 
+        // If the handler given is callable, wrap it up in a CallableCommandHandler for executing later
         if (is_callable($handler)) {
             return $this->bindHandler($commandName, new CallableCommandHandler($handler));
         }
 
+        // If the handler given is a string, wrap it up in a LazyLoadingCommandHandler for loading later
         if (is_string($handler)) {
             return $this->bindHandler($commandName, new LazyLoadingCommandHandler($handler, $this->container));
         }
