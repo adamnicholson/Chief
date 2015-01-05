@@ -6,7 +6,7 @@ use Chief\Command;
 use Chief\CommandHandler;
 use Chief\Container;
 
-class StringCommandHandler implements CommandHandler
+class LazyLoadingCommandHandler implements CommandHandler
 {
     /**
      * @var \Chief\Container
@@ -18,11 +18,10 @@ class StringCommandHandler implements CommandHandler
      */
     protected $handler;
 
-    public function __construct($string, Container $container)
+    public function __construct($handlerName, Container $container)
     {
         $this->container = $container;
-
-        $this->handler = $this->container->make($string);
+        $this->handlerName = $handlerName;
     }
 
     /**
@@ -33,7 +32,9 @@ class StringCommandHandler implements CommandHandler
      */
     public function handle(Command $command)
     {
-        return $this->handler->handle($command);
+        $handler = $this->container->make($this->handlerName);
+
+        return $handler->handle($command);
     }
 
 }

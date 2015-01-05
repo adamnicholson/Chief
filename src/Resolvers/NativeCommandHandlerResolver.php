@@ -8,6 +8,7 @@ use Chief\CommandHandlerResolver;
 use Chief\Container;
 use Chief\Exceptions\UnresolvableCommandHandlerException;
 use Chief\Handlers\CallableCommandHandler;
+use Chief\Handlers\LazyLoadingCommandHandler;
 use Chief\Handlers\StringCommandHandler;
 use Chief\NativeContainer;
 
@@ -54,6 +55,7 @@ class NativeCommandHandlerResolver implements CommandHandlerResolver
 
     public function bindHandler($commandName, $handler)
     {
+        // If the $handler given is an instance of CommandHandler, simply bind that
         if ($handler instanceof CommandHandler) {
             $this->handlers[$commandName] = $handler;
             return true;
@@ -64,7 +66,7 @@ class NativeCommandHandlerResolver implements CommandHandlerResolver
         }
 
         if (is_string($handler)) {
-            return $this->bindHandler($commandName, new StringCommandHandler($handler, $this->container));
+            return $this->bindHandler($commandName, new LazyLoadingCommandHandler($handler, $this->container));
         }
 
         throw new \InvalidArgumentException('Could not push handler. Command Handlers should be an
