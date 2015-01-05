@@ -11,8 +11,9 @@ Install the latest version with `composer require adamnicholson/chief`, or see [
 ## Features
 
 - Handle commands via CommandHandler classes or anonymous functions
-- Support for self-handling commands
-- Support for decorators
+- Self-handling commands
+- Command bus decorators
+- Queued commands
 - Lightweight interface
 - Framework agnostic
 
@@ -24,7 +25,7 @@ A Command Bus is an object oriented design pattern which involved 3 classes:
 2. `CommandHandler`
 3. `CommandBus`
 
-In a nutshell, a `Command` is just a tiny object containing some data (either in public properties or in getters/setters). This `Command` is then passed the `execute()` method on the `CommandBus`, which is responsible for further passing the `Command` to the `handle()` method on a `CommandHandler`.
+In a nutshell, a `Command` is just a tiny object containing some data (either in public properties or in getters/setters). You pass your `Command` object to the `execute($command)` method on the `CommandBus`, which is responsible for further passing the `Command` to the `handle()` method on its `CommandHandler`.
 
 For every `Command` in your application, there should be a corresponding `CommandHandler`.
 
@@ -63,6 +64,7 @@ In the below example, we demonstrate how a command bus design could handle regis
 
 ## Usage
 
+#### Example command and handler
 We'll use the 2 below classes for the usage examples:
 
     use Chief\Chief;
@@ -74,34 +76,56 @@ We'll use the 2 below classes for the usage examples:
         public function handle(Command $command) { /* ... */ }
     }
     
-    
+   
+#### Automatic handler resolution
 
 When you pass a `Command` to `Chief::execute()`, Chief will automatically search for the relevant `CommandHandler` and call the `handle()` method:
 
     $chief = new Chief;
     $chief->execute(new MyCommand);
-    
-Or if you'd prefer to explicitly bind a command to a handler, you can:
 
-    $chief = new Chief;
-    $chief->pushHandler('MyCommand', 'MyCommandHandler');
+By default, this will search for a `CommandHandler` class with the same name as your `Command`, suffixed with 'Handler'. For example, if your `Command` class is called `FooCommand`, Chief will look for a `FooCommandHandler` class when you call `execute($command)`. If it finds the handler, it will be automatically instantiated and `handle($command)` will be called on it.
+
+Implement your own version of the `Chief\CommandHandlerResolver` interface to modify the default automatic resolution behaviour.
+    
+#### Handlers bound by class name
+
+If your handlers don't follow a particular naming convention, you can explicitly bind a command to a handler by its class name:
+
+	$resolver = new Chief\NativeCommandHandlerResolver();
+	$chief = new Chief($resolver);
+	
+	$resolver->bindHandler('MyCommand', 'MyCommandHandler');
+
     $chief->execute(new MyCommand);
     
-Or, just inject your own `CommandHandler` instance manually:
+#### Handlers bound by object
+
+Or, just pass your `CommandHandler` instance:
     
-    $chief = new Chief;
-    $chief->pushHandler('MyCommand', new MyCommandHandler);
+    $resolver = new Chief\NativeCommandHandlerResolver();
+	$chief = new Chief($resolver);
+	
+	$resolver->bindHandler('MyCommand', new MyCommandHandler);
+
     $chief->execute(new MyCommand);
     
+#### Handlers as anonymous functions
+
 Sometimes you might want to quickly write a handler for your `Command` without having to write a new class. With Chief you can do this by passing an anonymous function as your handler:
 
-    $chief = new Chief;
-    $chief->pushHandler('MyCommand', function (Command $command) {
-        // Do something with your $command
+    $resolver = new Chief\NativeCommandHandlerResolver();
+	$chief = new Chief($resolver);
+	
+	$resolver->bindHandler('MyCommand', function (Command $command) {
+        /* ... */
     });
+
     $chief->execute(new MyCommand);
     
-Alternatively, you may want to simply allow a `Command` object to execute itself. You can do this easily by ensuring your `Command` class also implements `CommandHandler`:
+#### Self-handling commands
+
+Alternatively, you may want to simply allow a `Command` object to execute itself. To do this, just ensure your `Command` class also implements `CommandHandler`:
 
     class SelfHandlingCommand implements Command, CommandHandler {
         public function handle(Command $command) { /* ... */ }
@@ -109,26 +133,11 @@ Alternatively, you may want to simply allow a `Command` object to execute itself
     $chief = new Chief;
     $chief->execute(new MyCommand);
 
-## Decorators
-Imagine you want to log every command execution. You could do this by adding a call to your logger in every `CommandHandler`, however a much more elegant solution is to use decorators. 
 
-All Chief decorators must implement the `CommandBus` interface. For the Log example, you may create a decorator which looks like this:
+## Dependency Injection Container Integration
+Chief uses a `CommandHandlerResolver` class which is responsible for finding and instantiating the relevant `CommandHandler` for a given `Command`. 
 
-    class LogDecorator implements CommandBus {
-        public function execute(Chief\Command $command) {
-            Log::debug($command);
-        }
-    }
-    
-    $chief = new Chief;
-    $chief->addDecorator(new LogDecorator);
-    $chief->execute(new MyCommand);
-
-The `execute()` method on all decorators will be called before the `CommandHandler` `handle()` method is called.
-
-
-## IoC Container Integration
-Want to use your own IoC Container for handling constructor dependency injection? No problem, just create your own class which implements `Chief\Container` and pass it to Chief.
+If you want to use your own Dependency Injection Container to control the actual instantiation, just create your own class which implements `Chief\Container` and pass it to the `CommandHandlerResolver`.
 
 For example, if you're using Laravel:
 
@@ -138,88 +147,34 @@ For example, if you're using Laravel:
         }
     }
     
-    $chief = new Chief(new LaravelContainer);
-    $chief->pushHandler('MyCommand', 'MyCommandHandler');
+	$resolver = new Chief\NativeCommandHandlerResolver(new IlluminateContainer);
+    $chief = new Chief($resolver);
     $chief->execute(new MyCommand);
 
-## Interfaces
 
-#### CommandBus
-`Chief\CommandBus` is the main CommandBus which `Chief\Chief` implements:
+## Decorators
+Imagine you want to log every command execution. You could do this by adding a call to your logger in every `CommandHandler`, however a much more elegant solution is to use decorators. 
 
-    interface CommandBus
-    {
-        /**
-         * Execute a command
-         *
-         * @param Command $command
-         * @return mixed
-         */
-        public function execute(Command $command);
+Below is an example of a decorator for logging all commands executed by the bus.
+
+    class LogDecoratorCommandBus implements CommandBus
+	{
+	    public function __construct(LoggerInterface $logger, CommandBus $commandBus)
+	    {
+	        $this->logger = $logger;
+	        $this->commandBus = $commandBus;
+	    }
+
+	    public function execute(Command $command)
+	    {
+	        $this->logger->info('Started executing command ['.get_class($command).']');
+	        $this->commandBus->execute($command);
+	        $this->logger->info('Finished executing command ['.get_class($command).]');
+	    }
+	}
     
-        /**
-         * Map a command to a callable handler
-         *
-         * @param string $commandName
-         * @param CommandHandler|callable|string $handler
-         * @return mixed
-         */
-        public function pushHandler($commandName, $handler);
-    
-        /**
-         * Add a decorator
-         *
-         * @param CommandBus $decorator
-         * @return mixed
-         */
-        public function addDecorator(CommandBus $decorator);
-    }
-
-#### Command
-`Chief\Command` should be implemented by all `Command` classes, although the interface is empty due to the nature of command objects:
-
-    interface Command {}
-
-#### CommandHelper
-`Chief\CommandHandler` takes in `Chief\Command` objects and is responsible for handling the desired operation:
-
-    interface CommandHandler
-    {
-        /**
-         * Handle a command execution
-         *
-         * @param Command $command
-         * @return mixed
-         */
-        public function handle(Command $command);
-    }
-
-#### Container
-`Chief\Container` is responsible for instantiating objects based on their class name/alias:
-
-    interface Container
-    {
-        /**
-         * Instantiate and return an object based on its class name
-         *
-         * @param $class
-         * @return object
-         */
-        public function make($class);
-    }
-
-#### CommandHandlerResolver
-`Chief\CommandHandlerResolver` is responsible for automatically finding a `CommandHandler` which has not been explicitly bound to a `Command` via `pushHandler()`:
-    
-    interface CommandHandlerResolver
-    {
-        /**
-         * Automatically resolve a handler from a command
-         *
-         * @param string $command
-         * @return CommandHandler
-         */
-        public function resolve($command);
-    }
-    
-The default `CommandHandlerResolver` will attempt to find handlers with the same name as the `Command` given, suffixed with `Handler`. For example, given "FooCommand", the resolver will return "FooCommandHandler" if it exists.
+	$bus = new LogDecoratorCommandBus(
+        $logger = $logger,
+        $innerBus = new Chief\Busses\SynchronousCommandBus
+    );
+    $bus->execute(new MyCommand);
