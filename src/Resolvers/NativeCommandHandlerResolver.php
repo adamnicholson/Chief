@@ -50,15 +50,20 @@ class NativeCommandHandlerResolver implements CommandHandlerResolver
             return $this->container->make($class);
         }
 
-        throw new UnresolvableCommandHandlerException('Could not resolve a handler for [' . get_class($command));
+        throw new UnresolvableCommandHandlerException('Could not resolve a handler for [' . get_class($command) . ']');
     }
 
+    /**
+     * @param $commandName
+     * @param $handler
+     * @throws \InvalidArgumentException
+     */
     public function bindHandler($commandName, $handler)
     {
         // If the $handler given is an instance of CommandHandler, simply bind that
         if ($handler instanceof CommandHandler) {
             $this->handlers[$commandName] = $handler;
-            return true;
+            return;
         }
 
         // If the handler given is callable, wrap it up in a CallableCommandHandler for executing later
