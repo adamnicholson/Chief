@@ -1,6 +1,8 @@
 <?php
 
-namespace Chief;
+namespace Chief\Containers;
+
+use Chief\Container;
 
 class NativeContainer implements Container
 {
