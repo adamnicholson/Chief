@@ -3,6 +3,7 @@
 namespace Chief;
 
 use Chief\Busses\SynchronousCommandBus;
+use Chief\Decorators\LoggingDecorator;
 use Chief\Resolvers\NativeCommandHandlerResolver;
 use Chief\Stubs\LogDecoratorCommandBus;
 use Chief\Stubs\SelfHandlingCommand;
@@ -94,6 +95,32 @@ class ChiefTest extends ChiefTestCase
         $command = new TestCommand;
         $decorator->expects($this->once())->method('execute')->with($command);
         $chief->execute($command);
+    }
+
+    public function testInstanceWithMultipleDecoratorsHitsNestedDecorators()
+    {
+        $logger = $this->getMock('Psr\Log\LoggerInterface');
+
+        $chief = new Chief(new SynchronousCommandBus, [
+            $decoratorOne = new LoggingDecorator($logger),
+            $decoratorTwo = $this->getMock('Chief\Decorator'),
+        ]);
+        $command = new TestCommand;
+        $decoratorTwo->expects($this->once())->method('execute')->with($command);
+        $chief->execute($command);
+    }
+
+    public function testInstanceWithMultipleDecoratorsHitsHandler()
+    {
+        $logger = $this->getMock('Psr\Log\LoggerInterface');
+
+        $chief = new Chief(new SynchronousCommandBus, [
+            $decoratorOne = new LoggingDecorator($logger),
+            $decoratorTwo = new LoggingDecorator($logger),
+        ]);
+        $command = new SelfHandlingCommand;
+        $chief->execute($command);
+        $this->assertEquals($command->handled, true);
     }
 
     public function testInstanceThrowsExceptionWithInvalidDecorators()
