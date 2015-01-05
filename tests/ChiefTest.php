@@ -68,7 +68,8 @@ class ChiefTest extends ChiefTestCase
     public function testCommandCanHandleItselfIfImplementsCommandHandler()
     {
         $bus = new Chief();
-        $command = new SelfHandlingCommand;
+        $command = $this->getMock('Chief\Stubs\SelfHandlingCommand');
+        $command->expects($this->once())->method('handle')->with($command);
         $bus->execute($command);
     }
 
