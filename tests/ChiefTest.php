@@ -95,4 +95,12 @@ class ChiefTest extends ChiefTestCase
         $decorator->expects($this->once())->method('execute')->with($command);
         $chief->execute($command);
     }
+
+    public function testInstanceThrowsExceptionWithInvalidDecorators()
+    {
+        $this->setExpectedException('InvalidArgumentException');
+        new Chief(new SynchronousCommandBus, [
+            'This\Is\A\String\But\Decorators\Should\Be\Objects'
+        ]);
+    }
 }
