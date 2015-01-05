@@ -3,6 +3,7 @@
 namespace Chief;
 
 use Chief\Busses\SynchronousCommandBus;
+use Psr\Log\InvalidArgumentException;
 
 /**
  * The main Chief class is a CommandBus, which is effectively a decorator
@@ -16,9 +17,19 @@ class Chief implements CommandBus
      *
      * @param CommandBus $bus
      */
-    public function __construct(CommandBus $bus = null)
+    public function __construct(CommandBus $bus = null, array $decorators = [])
     {
-        $this->bus = $bus ?: new SynchronousCommandBus();
+        $this->bus = $bus ?: new SynchronousCommandBus;
+
+        foreach ($decorators as $decorator) {
+            if (!$decorator instanceof Decorator) {
+                throw new \InvalidArgumentException('Decorators must implement [Chief\Decorator]');
+            }
+
+            $decorator->setInnerBus($this->bus);
+
+            $this->bus = $decorator;
+        }
     }
 
     /**

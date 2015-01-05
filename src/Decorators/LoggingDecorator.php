@@ -4,14 +4,20 @@ namespace Chief\Decorators;
 
 use Chief\Command;
 use Chief\CommandBus;
+use Chief\Decorator;
 use Psr\Log\LoggerInterface;
 
-class LoggingDecorator implements CommandBus
+class LoggingDecorator implements Decorator
 {
     public function __construct(LoggerInterface $logger, CommandBus $innerCommandBus)
     {
         $this->logger = $logger;
         $this->innerCommandBus = $innerCommandBus;
+    }
+
+    public function setInnerBus(CommandBus $bus)
+    {
+        $this->innerCommandBus = $bus;
     }
 
     /**

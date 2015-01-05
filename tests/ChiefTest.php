@@ -85,4 +85,14 @@ class ChiefTest extends ChiefTestCase
         $innerBus->expects($this->once())->method('execute')->with($command);
         $chief->execute($command);
     }
+
+    public function testInstanceWithDecorators()
+    {
+        $chief = new Chief(new SynchronousCommandBus, [
+            $decorator = $this->getMock('Chief\Decorator')
+        ]);
+        $command = new TestCommand;
+        $decorator->expects($this->once())->method('execute')->with($command);
+        $chief->execute($command);
+    }
 }

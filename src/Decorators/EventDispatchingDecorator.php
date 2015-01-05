@@ -4,13 +4,19 @@ namespace Chief\Decorators;
 
 use Chief\Command;
 use Chief\CommandBus;
+use Chief\Decorator;
 
-class EventDispatchingDecorator implements CommandBus
+class EventDispatchingDecorator implements Decorator
 {
-    public function __construct(EventDispatcher $dispatcher, CommandBus $innerCommandBus)
+    public function __construct(EventDispatcher $dispatcher, CommandBus $innerCommandBus = null)
     {
         $this->dispatcher = $dispatcher;
         $this->innerCommandBus = $innerCommandBus;
+    }
+
+    public function setInnerBus(CommandBus $bus)
+    {
+        $this->innerCommandBus = $bus;
     }
 
     /**
