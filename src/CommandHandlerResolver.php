@@ -5,7 +5,7 @@ namespace Chief;
 interface CommandHandlerResolver
 {
     /**
-     * Automatically resolve a handler from a command
+     * Retrieve a CommandHandler for a given Command
      *
      * @param Command $command
      * @return CommandHandler
@@ -16,8 +16,8 @@ interface CommandHandlerResolver
      * Bind a handler to a command. These bindings should overrule the default
      * resolution behaviour for this resolver
      *
-     * @param $commandName
-     * @param $handler
+     * @param string $commandName
+     * @param CommandHandler|callable|string $handler
      */
     public function bindHandler($commandName, $handler);
 }

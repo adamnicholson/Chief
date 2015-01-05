@@ -24,11 +24,11 @@ class NativeCommandHandlerResolver implements CommandHandlerResolver
     }
 
     /**
-     * Automatically resolve a handler from a command
+     * Retrieve a CommandHandler for a given Command
      *
      * @param Command $command
      * @return CommandHandler
-     * @throws
+     * @throws UnresolvableCommandHandlerException
      */
     public function resolve(Command $command)
     {
@@ -54,8 +54,11 @@ class NativeCommandHandlerResolver implements CommandHandlerResolver
     }
 
     /**
-     * @param $commandName
-     * @param $handler
+     * Bind a handler to a command. These bindings should overrule the default
+     * resolution behaviour for this resolver
+     *
+     * @param string $commandName
+     * @param CommandHandler|callable|string $handler
      * @throws \InvalidArgumentException
      */
     public function bindHandler($commandName, $handler)
