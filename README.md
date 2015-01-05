@@ -178,3 +178,16 @@ Below is an example of a decorator for logging all commands executed by the bus.
         $innerBus = new Chief\Busses\SynchronousCommandBus
     );
     $bus->execute(new MyCommand);
+
+
+## Author
+
+Adam Nicholson - adamnicholson10@gmail.com
+
+## Contributing
+
+We welcome any contributions to Chief. They can be made via GitHub issues or pull requests.
+
+## License
+
+Chief is licensed under the MIT License - see the `LICENSE.txt` file for details
