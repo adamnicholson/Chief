@@ -70,6 +70,6 @@ class NativeCommandHandlerResolver implements CommandHandlerResolver
         }
 
         throw new \InvalidArgumentException('Could not push handler. Command Handlers should be an
-            instance of Chief\CommandHandler');
+            instance of Chief\CommandHandler, a callable, or a string representing a CommandHandler class');
     }
 }
