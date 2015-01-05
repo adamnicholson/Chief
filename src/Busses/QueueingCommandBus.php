@@ -5,8 +5,6 @@ namespace Chief\Busses;
 use Chief\Command;
 use Chief\CommandBus;
 use Chief\CommandBusQueuer;
-use Chief\CommandHandlerResolver;
-use Chief\Resolvers\NativeCommandHandlerResolver;
 
 class QueueingCommandBus implements CommandBus
 {
