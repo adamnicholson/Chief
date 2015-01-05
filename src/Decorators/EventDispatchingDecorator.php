@@ -40,7 +40,7 @@ class EventDispatchingDecorator implements Decorator
      * @param Command $command
      * @return string
      */
-    protected function getEventName (Command $command)
+    protected function getEventName(Command $command)
     {
         return str_replace('\\', '.', get_class($command));
     }
