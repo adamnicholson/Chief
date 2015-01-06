@@ -211,9 +211,6 @@ For example, if you're using Laravel:
 	$bus = new SynchronousCommandBus($resolver);
     $chief = new Chief($bus);
     $chief->execute(new MyCommand);
-    
-## Integration
-
 
 ## Author
 
