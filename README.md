@@ -6,9 +6,9 @@ Chief is a lightweight command bus package for PHP 5.4+.
 
 ## Features
 
-- Handle commands via CommandHandler classes or anonymous functions
+- Class-based command handlers
+- Anonymous functions as command handlers
 - Self-handling commands
-- Command bus decorators
 - Queued commands
 - Lightweight interface
 - Framework agnostic
@@ -16,7 +16,7 @@ Chief is a lightweight command bus package for PHP 5.4+.
 ## Command Bus?
 
 
-> The most common style of interface to a module is to use procedures, or object methods. So if you want a module to calculate a bunch of charges for a contract, you might have a BillingService class with a method for doing the calculation, calling it like this `$billingService->calculateCharges($contract)`. A command oriented interface would have a command class for each operation, and be called with something like this `(new CalculateChargesCommand($contract)->execute()`. Essentially you have one command class for each method that you would have in the method-oriented interface. A common variation is to have a separate command executor object that actually does the running of the command. `$command = new CalculateChargesCommand($contract); $commandBus->execute($command);`
+> The most common style of interface to a module is to use procedures, or object methods. So if you want a module to calculate a bunch of charges for a contract, you might have a BillingService class with a method for doing the calculation, calling it like this `$billingService->calculateCharges($contract);`. A command oriented interface would have a command class for each operation, and be called with something like this `$cmd = new CalculateChargesCommand($contract); $cmd->execute();`. Essentially you have one command class for each method that you would have in the method-oriented interface. A common variation is to have a separate command executor object that actually does the running of the command. `$command = new CalculateChargesCommand($contract); $commandBus->execute($command);`
 
 -- From [Martin Fowler's Blog](http://martinfowler.com/bliki/CommandOrientedInterface.html) (*code samples haven ported to PHP*):
 
@@ -28,14 +28,11 @@ That 'executor' Martin mentions is what we call the command bus. The pattern typ
 
 For every `Command` in your application, there should be a corresponding `CommandHandler`.
 
-In the below example, we demonstrate how a command bus design could handle registering a new user in your system using Chief as your command bus:
+In the below example, we demonstrate how a command bus design could handle registering a new user in your system using Chief:
 
-
-	use Chief\Command;
-	use Chief\CommandHandler;
-	use Chief\Chief;
+	use Chief\Chief, Chief\Command, Chief\CommandHandler;
 	
-	class RegisterUserCommand implements Chief {
+	class RegisterUserCommand implements Command {
 		public $email;
 		public $name;
 	}
@@ -74,12 +71,9 @@ After installing via composer, add the below to the `$providers` array in your `
 
 ## Usage
 
-#### Example command and handler
-We'll use the 2 below classes for the usage examples:
+We'll use the below command/handler for the usage examples:
 
-    use Chief\Chief;
-    use Chief\Command;
-    use Chief\CommandHandler;
+    use Chief\Chief, Chief\Command, Chief\CommandHandler;
     
     class MyCommand implements Command {}
     class MyCommandHandler implements CommandHandler {
@@ -102,20 +96,20 @@ Want to implement your own method of automatically resolving handlers from comma
 
 If your handlers don't follow a particular naming convention, you can explicitly bind a command to a handler by its class name:
 
-	$resolver = new Chief\NativeCommandHandlerResolver();
+    use Chief\Chief, Chief\NativeCommandHandlerResolver, Chief\Busses\SynchronousCommandBus;
+    
+	$resolver = new NativeCommandHandlerResolver();
+	$bus = new SynchronousCommandBus($resolver);
 	$chief = new Chief($resolver);
 	
 	$resolver->bindHandler('MyCommand', 'MyCommandHandler');
-
+	
     $chief->execute(new MyCommand);
     
 #### Handlers bound by object
 
 Or, just pass your `CommandHandler` instance:
     
-    $resolver = new Chief\NativeCommandHandlerResolver();
-	$chief = new Chief($resolver);
-	
 	$resolver->bindHandler('MyCommand', new MyCommandHandler);
 
     $chief->execute(new MyCommand);
@@ -123,9 +117,6 @@ Or, just pass your `CommandHandler` instance:
 #### Handlers as anonymous functions
 
 Sometimes you might want to quickly write a handler for your `Command` without having to write a new class. With Chief you can do this by passing an anonymous function as your handler:
-
-    $resolver = new Chief\NativeCommandHandlerResolver();
-	$chief = new Chief($resolver);
 	
 	$resolver->bindHandler('MyCommand', function (Command $command) {
         /* ... */
@@ -140,7 +131,6 @@ Alternatively, you may want to simply allow a `Command` object to execute itself
     class SelfHandlingCommand implements Command, CommandHandler {
         public function handle(Command $command) { /* ... */ }
     }
-    $chief = new Chief;
     $chief->execute(new MyCommand);
 
 ## Decorators
@@ -168,7 +158,7 @@ Registering multiple decorators:
 
 By default, commands are executed by the `SynchronousCommandBus`, which handles them straight away. You may however wish to queue commands to be executed later. This is where the `QueueingCommandBus` comes in.
 
-To use the `QueueingCommandBus`, you must first implement the `CommandBusQueuer` interface with your desired Queue package:
+To use the `QueueingCommandBus`, you must first implement the `CommandBusQueuer` interface with your desired queue package:
 
     interface CommandBusQueuer
     {
