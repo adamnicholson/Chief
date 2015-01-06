@@ -20,7 +20,7 @@ class LaravelServiceProvider extends ServiceProvider
 
     protected function registerContainer()
     {
-        $this->app->bind('Chief\Container', 'Chief\Containers\IlluminateContainer');
+        $this->app->bind('Chief\Container', 'Chief\Bridge\Laravel\IlluminateContainer');
     }
 
     protected function registerCommandBus()
@@ -34,6 +34,6 @@ class LaravelServiceProvider extends ServiceProvider
 
     protected function registerEventDispatcher()
     {
-        $this->app->bind('Chief\Decorators\EventDispatcher', 'Chief\Decorators\Laravel\IlluminateEventDispatcher');
+        $this->app->bind('Chief\Decorators\EventDispatcher', 'Chief\Bridge\Laravel\IlluminateEventDispatcher');
     }
 }
