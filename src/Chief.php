@@ -15,6 +15,8 @@ class Chief implements CommandBus
      * Constructor
      *
      * @param CommandBus $bus
+     * @param array $decorators Array of \Chief\Decorator objects
+     * @throws \InvalidArgumentException when invalid decorators are passed
      */
     public function __construct(CommandBus $bus = null, array $decorators = [])
     {
