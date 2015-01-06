@@ -179,7 +179,7 @@ For example, if you're using Laravel:
     
 ## Integration
 
-Usually you can just use Chief without any setup, however if you want to make sure we play nicely with your framework feautures (such as DI Containers, Event handlers, etc), use the bridges below.
+Usually you can just use Chief without any setup, however if you want to make sure we play nicely with your framework features (such as DI Containers, Event handlers, etc), use the bridges below.
 
 #### Laravel
 
