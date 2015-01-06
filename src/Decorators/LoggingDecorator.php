@@ -9,10 +9,9 @@ use Psr\Log\LoggerInterface;
 
 class LoggingDecorator implements Decorator
 {
-    public function __construct(LoggerInterface $logger, CommandBus $innerCommandBus = null)
+    public function __construct(LoggerInterface $logger)
     {
         $this->logger = $logger;
-        $this->innerCommandBus = $innerCommandBus;
     }
 
     public function setInnerBus(CommandBus $bus)

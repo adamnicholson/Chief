@@ -8,10 +8,9 @@ use Chief\Decorator;
 
 class EventDispatchingDecorator implements Decorator
 {
-    public function __construct(EventDispatcher $dispatcher, CommandBus $innerCommandBus = null)
+    public function __construct(EventDispatcher $dispatcher)
     {
         $this->dispatcher = $dispatcher;
-        $this->innerCommandBus = $innerCommandBus;
     }
 
     public function setInnerBus(CommandBus $bus)
