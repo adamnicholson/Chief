@@ -4,10 +4,6 @@
 
 Chief is a lightweight command bus package for PHP 5.4+.
 
-## Installation
-
-Install the latest version with `composer require adamnicholson/chief`, or see [Packagist](https://packagist.org/packages/adamnicholson/chief).
-
 ## Features
 
 - Handle commands via CommandHandler classes or anonymous functions
@@ -64,6 +60,17 @@ In the below example, we demonstrate how a command bus design could handle regis
 
 
 
+## Installation
+
+Install the latest version with `composer require adamnicholson/chief`, or see [Packagist](https://packagist.org/packages/adamnicholson/chief).
+
+No further setup is required, however if you're using a framework and want to make sure that we play nicely (with DI Containers, Event handlers, etc), then use the bridges below.
+
+#### Laravel
+
+After installing via composer, add the below to the `$providers` array in your `app/config/app.php`:
+
+    'Chief\Bridge\Laravel\LaravelServiceProvider'
 
 ## Usage
 
@@ -157,13 +164,40 @@ Registering multiple decorators:
         new EventDispatchingDecorator($eventDispatcher)
     ]);
     
+## Queued Commands
 
+By default, commands are executed by the `SynchronousCommandBus`, which handles them straight away. You may however wish to queue commands to be executed later. This is where the `QueueingCommandBus` comes in.
+
+To use the `QueueingCommandBus`, you must first implement the `CommandBusQueuer` interface with your desired Queue package:
+
+    interface CommandBusQueuer
+    {
+        /**
+         * Queue a Command for executing
+         *
+         * @param Command $command
+         */
+        public function queue(Command $command);
+    }
+
+Next, inject the `QueueingCommandBus` when you start up Chief:
+
+    $queuer = MyCommandBusQueuer();
+    $bus = new QueueingCommandBus($queuer);
+    $chief = new Chief($bus);
     
+Then use Chief as normal:
+
+    $command = new MyCommand();
+    $chief->execute($command);
+    
+An implementation of this interface for illuminate/queue is [included](https://github.com/adamnicholson/Chief/blob/master/src/Bridge/Laravel/IlluminateQueuer.php).
+
 
 ## Dependency Injection Container Integration
 Chief uses a `CommandHandlerResolver` class which is responsible for finding and instantiating the relevant `CommandHandler` for a given `Command`. 
 
-If you want to use your own Dependency Injection Container to control the actual instantiation, just create your own class which implements `Chief\Container` and pass it to the `CommandHandlerResolver`.
+If you want to use your own Dependency Injection Container to control the actual instantiation, just create your own class which implements `Chief\Container` and pass it to the `CommandHandlerResolver` which is consumed by `SynchronousCommandBus`.
 
 For example, if you're using Laravel:
 
@@ -174,19 +208,12 @@ For example, if you're using Laravel:
     }
     
 	$resolver = new Chief\NativeCommandHandlerResolver(new IlluminateContainer);
-    $chief = new Chief($resolver);
+	$bus = new SynchronousCommandBus($resolver);
+    $chief = new Chief($bus);
     $chief->execute(new MyCommand);
     
 ## Integration
 
-Usually you can just use Chief without any setup, however if you want to make sure we play nicely with your framework features (such as DI Containers, Event handlers, etc), use the bridges below.
-
-#### Laravel
-
-After installing via composer, add the below to the `$providers` array in your `app/config/app.php`:
-
-    'Chief\Bridge\Laravel\LaravelServiceProvider`
-    
 
 ## Author
 
