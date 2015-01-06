@@ -2,4 +2,7 @@
 
 namespace Chief\Exceptions;
 
-class UnresolvableCommandHandlerException extends ChiefException {}
+class UnresolvableCommandHandlerException extends ChiefException
+{
+
+}

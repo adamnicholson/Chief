@@ -2,4 +2,7 @@
 
 namespace Chief\Exceptions;
 
-abstract class ChiefException extends \Exception {}
+abstract class ChiefException extends \Exception
+{
+
+}

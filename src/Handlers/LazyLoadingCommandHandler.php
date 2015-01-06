@@ -36,5 +36,4 @@ class LazyLoadingCommandHandler implements CommandHandler
 
         return $handler->handle($command);
     }
-
 }
