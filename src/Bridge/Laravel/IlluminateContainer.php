@@ -1,6 +1,6 @@
 <?php
 
-namespace Chief\Containers;
+namespace Chief\Bridge\Laravel;
 
 use Chief\Container;
 use Illuminate\Foundation\Application;

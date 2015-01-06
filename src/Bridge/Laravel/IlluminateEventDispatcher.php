@@ -1,6 +1,6 @@
 <?php
 
-namespace Chief\Decorators\Laravel;
+namespace Chief\Bridge\Laravel;
 
 use Chief\Decorators\EventDispatcher;
 use Illuminate\Events\Dispatcher;

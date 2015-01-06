@@ -1,6 +1,6 @@
 <?php
 
-namespace Chief\Providers;
+namespace Chief\Bridge\Laravel;
 
 use Chief\Busses\SynchronousCommandBus;
 use Chief\Chief;
