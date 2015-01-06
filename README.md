@@ -177,6 +177,16 @@ For example, if you're using Laravel:
     $chief = new Chief($resolver);
     $chief->execute(new MyCommand);
     
+## Integration
+
+Usually you can just use Chief without any setup, however if you want to make sure we play nicely with your framework feautures (such as DI Containers, Event handlers, etc), use the bridges below.
+
+#### Laravel
+
+After installing via composer, add the below to the `$providers` array in your `app/config/app.php`:
+
+    'Chief\Bridge\Laravel\LaravelServiceProvider`
+    
 
 ## Author
 
