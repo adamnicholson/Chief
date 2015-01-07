@@ -131,7 +131,7 @@ Alternatively, you may want to simply allow a `Command` object to execute itself
     class SelfHandlingCommand implements Command, CommandHandler {
         public function handle(Command $command) { /* ... */ }
     }
-    $chief->execute(new MyCommand);
+    $chief->execute(new SelfHandlingCommand);
 
 ## Decorators
 Imagine you want to log every command execution. You could do this by adding a call to your logger in every `CommandHandler`, however a much more elegant solution is to use decorators.
