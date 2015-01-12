@@ -88,7 +88,9 @@ When you pass a `Command` to `Chief::execute()`, Chief will automatically search
     $chief = new Chief;
     $chief->execute(new MyCommand);
 
-By default, this will search for a `CommandHandler` class with the same name as your `Command`, suffixed with 'Handler'. For example, if your `Command` class is called `FooCommand`, Chief will look for a `FooCommandHandler` class, instantiate it and call `handle($command)`.
+By default, this will search for a `CommandHandler` with the same name as your `Command`, suffixed with 'Handler', in both the current namespace and in a nested `Handlers` namespace. 
+
+So `Commands\FooCommand` will automatically resolve to `Commands\FooCommandHandler` or `Commands\Handlers\FooCommandHandler` if either class exists.
 
 Want to implement your own method of automatically resolving handlers from commands? Implement your own version of the `Chief\CommandHandlerResolver` interface to modify the automatic resolution behaviour.
     

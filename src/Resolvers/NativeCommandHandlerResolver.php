@@ -32,9 +32,11 @@ class NativeCommandHandlerResolver implements CommandHandlerResolver
      */
     public function resolve(Command $command)
     {
+        $commandName = get_class($command);
+
         // Find the CommandHandler if it has been manually defined using pushHandler()
         foreach ($this->handlers as $handlerCommand => $handler) {
-            if ($handlerCommand == get_class($command)) {
+            if ($handlerCommand == $commandName) {
                 return $handler;
             }
         }
@@ -44,8 +46,16 @@ class NativeCommandHandlerResolver implements CommandHandlerResolver
             return $command;
         }
 
-        // Try and guess the handler's name
-        $class = get_class($command) . 'Handler';
+        // Try and guess the handler's name in the same namespace with suffix "Handler"
+        $class = $commandName . 'Handler';
+        if (class_exists($class)) {
+            return $this->container->make($class);
+        }
+
+        // Try and guess the handler's name in nested "Handlers" namespace with suffix "Handler"
+        $classParts = explode('\\', $commandName);
+        $commandNameWithoutNamespace = array_pop($classParts);
+        $class = implode('\\', $classParts) . '\\Handlers\\' . $commandNameWithoutNamespace . 'Handler';
         if (class_exists($class)) {
             return $this->container->make($class);
         }
