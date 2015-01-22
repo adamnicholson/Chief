@@ -33,19 +33,32 @@ class LoggingDecorator implements Decorator
      * Execute a command
      *
      * @param Command $command
+     * @throws \Exception
      * @return mixed
      */
     public function execute(Command $command)
     {
         $this->log('Executing command [' . get_class($command) . ']', [$command]);
 
-        $this->innerCommandBus->execute($command);
+        try {
+            $this->innerCommandBus->execute($command);
+        } catch (\Exception $e) {
+            $this->log('Failed executing command [' . get_class($command) . ']. ' .
+                $this->createExceptionString($e), [$command]);
+            throw $e;
+        }
 
         $this->log('Successfully executed command [' . get_class($command) . ']', [$command]);
     }
 
     protected function log($message, $context = [])
     {
-        $this->logger->info($message, $context);
+        $this->logger->debug($message, $context);
+    }
+
+    protected function createExceptionString(\Exception $e)
+    {
+        return 'Uncaught ' . get_class($e) . '[' . $e->getMessage() . '] throw in ' . $e->getFile() .
+        ' on line ' . $e->getLine() . '. Stack trace: ' . $e->getTraceAsString();
     }
 }
