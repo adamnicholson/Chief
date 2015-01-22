@@ -2,11 +2,11 @@
 
 namespace Chief\Decorators;
 
-use Chief\ChiefTest;
+use Chief\ChiefTestCase;
 use Chief\CommandBus;
 use Chief\Stubs\TestCommand;
 
-class EventDispatchingDecoratorTest extends ChiefTest
+class EventDispatchingDecoratorTest extends ChiefTestCase
 {
     public function testInstance()
     {

@@ -2,10 +2,10 @@
 
 namespace Chief\Bridge\Laravel;
 
-use Chief\ChiefTest;
+use Chief\ChiefTestCase;
 use Illuminate\Container\Container;
 
-class IlluminateContainerTest extends ChiefTest
+class IlluminateContainerTest extends ChiefTestCase
 {
     public function testMakeHitsInnerContainer()
     {

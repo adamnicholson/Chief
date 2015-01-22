@@ -2,11 +2,11 @@
 
 namespace Chief\Decorators;
 
-use Chief\ChiefTest;
+use Chief\ChiefTestCase;
 use Chief\CommandBus;
 use Chief\Stubs\TestCommand;
 
-class LoggingDecoratorTest extends ChiefTest
+class LoggingDecoratorTest extends ChiefTestCase
 {
     public function testInstance()
     {
