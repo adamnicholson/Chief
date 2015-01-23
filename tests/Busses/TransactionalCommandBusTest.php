@@ -55,4 +55,28 @@ class TransactionalCommandBusTest extends ChiefTestCase
 
         $this->assertEquals($countTestCommandCalled, 3);
     }
+
+    public function testNestedCommandsNotExecutedWhenInitialCommandFailsBeforeReturning()
+    {
+        $syncBus = new SynchronousCommandBus($resolver = new NativeCommandHandlerResolver());
+        $bus = new TransactionalCommandBus($syncBus);
+        $command = new TestTransactionalCommand();
+
+        $countTestCommandCalled = 0;
+        $resolver->bindHandler('Chief\Stubs\TestCommand', function () use ($bus, &$countTestCommandCalled) {
+            $countTestCommandCalled++;
+        });
+
+        $resolver->bindHandler('Chief\Stubs\TestTransactionalCommand', function () use ($bus, &$lastCalled) {
+            $bus->execute(new TestCommand());
+            $bus->execute(new TestCommand());
+            $bus->execute(new TestCommand());
+            throw new \Exception('Something failed');
+        });
+
+        $this->setExpectedException('Exception');
+        $bus->execute($command);
+
+        $this->assertEquals($countTestCommandCalled, 0);
+    }
 }
