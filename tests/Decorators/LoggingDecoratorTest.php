@@ -2,17 +2,14 @@
 
 namespace Chief\Decorators;
 
-use Chief\ChiefTestCase;
 use Chief\CommandBus;
 use Chief\Stubs\TestCommand;
 
-class LoggingDecoratorTest extends ChiefTestCase
+class LoggingDecoratorTest extends DecoratorTest
 {
     public function testInstance()
     {
-        $decorator = new LoggingDecorator(
-            $this->getMock('Psr\Log\LoggerInterface')
-        );
+        $decorator = $this->getDecorator();
         $decorator->setInnerBus($this->getMock('Chief\CommandBus'));
         $this->assertTrue($decorator instanceof CommandBus);
     }
@@ -42,4 +39,13 @@ class LoggingDecoratorTest extends ChiefTestCase
         $this->setExpectedException('Exception');
         $decorator->execute($command);
     }
+
+    /**
+     * @return \Chief\Decorator
+     */
+    protected function getDecorator()
+    {
+        return new LoggingDecorator($this->getMock('Psr\Log\LoggerInterface'));
+    }
+
 }

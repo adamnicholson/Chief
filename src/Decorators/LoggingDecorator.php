@@ -41,7 +41,7 @@ class LoggingDecorator implements Decorator
         $this->log('Executing command [' . get_class($command) . ']', [$command]);
 
         try {
-            $this->innerCommandBus->execute($command);
+            $response = $this->innerCommandBus->execute($command);
         } catch (\Exception $e) {
             $this->log('Failed executing command [' . get_class($command) . ']. ' .
                 $this->createExceptionString($e), [$command]);
@@ -49,6 +49,8 @@ class LoggingDecorator implements Decorator
         }
 
         $this->log('Successfully executed command [' . get_class($command) . ']', [$command]);
+
+        return $response;
     }
 
     protected function log($message, $context = [])
