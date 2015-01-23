@@ -44,11 +44,20 @@ class TransactionalCommandBus implements CommandBus
         return $response;
     }
 
+    /**
+     * Execute a command, regardless of the lock
+     *
+     * @param Command $command
+     * @return mixed
+     */
     protected function executeIgnoringLock(Command $command)
     {
         return $this->innerBus->execute($command);
     }
 
+    /**
+     * Execute all queued commands
+     */
     protected function executeQueue()
     {
         foreach ($this->queue as $command) {

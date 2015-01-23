@@ -25,7 +25,7 @@ class QueueingCommandBus implements CommandBus
      * Execute a command
      *
      * @param Command $command
-     * @return mixed
+     * @return void
      */
     public function execute(Command $command)
     {
