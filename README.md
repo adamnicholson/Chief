@@ -158,9 +158,9 @@ Registering multiple decorators:
     
 ## Queued Commands
 
-By default, commands are executed by the `SynchronousCommandBus`, which handles them straight away. You may however wish to queue commands to be executed later. This is where the `QueueingCommandBus` comes in.
+Commands are often used for 'actions' on your domain (eg. send an email, create a user, log an event, etc). For these type of commands where you don't need an immediate response you may wish to queue them to be executed later. This is where the `QueueableCommand` interface and the `QueueingCommandBus` come in.
 
-To use the `QueueingCommandBus`, you must first implement the `CommandBusQueuer` interface with your desired queue package:
+Firstly, to use the `QueueingCommandBus`, you must first implement the `CommandBusQueuer` interface with your desired queue package:
 
     interface CommandBusQueuer
     {
@@ -178,12 +178,22 @@ Next, inject the `QueueingCommandBus` when you start up Chief:
     $bus = new QueueingCommandBus($queuer);
     $chief = new Chief($bus);
     
+Then, implement `QueueableCommand` in any command which can be queued:
+
+	MyQueueableCommand implements Chief\QueueableCommand {}
+
 Then use Chief as normal:
 
-    $command = new MyCommand();
+    $command = new MyQueueableCommand();
     $chief->execute($command);
-    
-An implementation of this interface for illuminate/queue is [included](https://github.com/adamnicholson/Chief/blob/master/src/Bridge/Laravel/IlluminateQueuer.php).
+
+If you pass Chief any command which does not implement `QueueableCommand`, it will be executed immediately as normal:
+
+	$command = new MyCommand();
+	$chief->execute($command);
+
+
+> An implementation of `CommandQueuer` for illuminate/queue is [included](https://github.com/adamnicholson/Chief/blob/master/src/Bridge/Laravel/IlluminateQueuer.php).
 
 
 ## Dependency Injection Container Integration
