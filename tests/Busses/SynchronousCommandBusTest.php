@@ -23,4 +23,16 @@ class SynchronousCommandBusTest extends ChiefTestCase
         $resolver->expects($this->once())->method('resolve')->with($command)->willReturn($handler);
         $bus->execute($command);
     }
+
+    public function testExecuteReturnsHandlerResponse()
+    {
+        $resolver = $this->getMock('Chief\CommandHandlerResolver');
+        $handler = $this->getMock('Chief\CommandHandler');
+        $bus = new SynchronousCommandBus($resolver);
+        $command = new TestCommand;
+        $handler->expects($this->once())->method('handle')->with($command)->willReturn('Foo-Bar.');
+        $resolver->expects($this->once())->method('resolve')->with($command)->willReturn($handler);
+        $response = $bus->execute($command);
+        $this->assertEquals($response, 'Foo-Bar.');
+    }
 }
