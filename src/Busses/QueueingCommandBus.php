@@ -15,8 +15,6 @@ use Chief\QueueableCommand;
  */
 class QueueingCommandBus implements CommandBus
 {
-    protected $resolver;
-
     public function __construct(CommandBusQueuer $queuer, CommandBus $innerBus = null)
     {
         $this->queuer = $queuer;
