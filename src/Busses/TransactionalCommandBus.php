@@ -12,8 +12,22 @@ use Chief\CommandBus;
  */
 class TransactionalCommandBus implements CommandBus
 {
+    /**
+     * Whether or not a Command is in progress and the bus is locked
+     * @var bool
+     */
     protected $locked = false;
+
+    /**
+     * Queued Commands to be executed when the current command finishes
+     * @var array
+     */
     protected $queue = [];
+
+    /**
+     * @var CommandBus
+     */
+    protected $innerBus;
 
     public function __construct(CommandBus $innerBus = null)
     {

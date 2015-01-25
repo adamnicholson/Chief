@@ -5,9 +5,23 @@ namespace Chief\Decorators;
 use Chief\Command;
 use Chief\CommandBus;
 use Chief\Decorator;
+use Exception;
 
 class EventDispatchingDecorator implements Decorator
 {
+    /**
+     * @var EventDispatcher
+     */
+    protected $dispatcher;
+
+    /**
+     * @var CommandBus
+     */
+    protected $innerCommandBus;
+
+    /**
+     * @param EventDispatcher $dispatcher
+     */
     public function __construct(EventDispatcher $dispatcher)
     {
         $this->dispatcher = $dispatcher;
@@ -23,9 +37,14 @@ class EventDispatchingDecorator implements Decorator
      *
      * @param Command $command
      * @return mixed
+     * @throws \Exception
      */
     public function execute(Command $command)
     {
+        if (!$this->innerCommandBus) {
+            throw new Exception('No inner bus defined for this decorator. Set an inner bus with setInnerBus()');
+        }
+
         $response = $this->innerCommandBus->execute($command);
 
         $eventName = $this->getEventName($command);

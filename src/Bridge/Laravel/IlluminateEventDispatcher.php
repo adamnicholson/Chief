@@ -7,6 +7,11 @@ use Illuminate\Events\Dispatcher;
 
 class IlluminateEventDispatcher implements EventDispatcher
 {
+    protected $dispatcher;
+
+    /**
+     * @param Dispatcher $dispatcher
+     */
     public function __construct(Dispatcher $dispatcher)
     {
         $this->dispatcher = $dispatcher;

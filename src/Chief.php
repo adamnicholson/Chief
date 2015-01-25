@@ -12,6 +12,11 @@ use Chief\Busses\SynchronousCommandBus;
 class Chief implements CommandBus
 {
     /**
+     * @var CommandBus
+     */
+    protected $bus;
+
+    /**
      * Constructor
      *
      * @param CommandBus $bus

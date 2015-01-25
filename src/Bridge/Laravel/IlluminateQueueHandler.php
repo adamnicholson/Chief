@@ -6,6 +6,11 @@ use Chief\Busses\SynchronousCommandBus;
 
 class IlluminateQueueHandler
 {
+    protected $bus;
+
+    /**
+     * @param SynchronousCommandBus $bus
+     */
     public function __construct(SynchronousCommandBus $bus)
     {
         $this->bus = $bus;
@@ -16,5 +21,7 @@ class IlluminateQueueHandler
         $command = unserialize($serializedCommand);
 
         $this->bus->execute($command);
+
+        $job->delete();
     }
 }

@@ -14,10 +14,14 @@ class LazyLoadingCommandHandler implements CommandHandler
     protected $container;
 
     /**
-     * @var \Chief\CommandHandler
+     * @var string
      */
     protected $handler;
 
+    /**
+     * @param string $handlerName
+     * @param Container $container
+     */
     public function __construct($handlerName, Container $container)
     {
         $this->container = $container;

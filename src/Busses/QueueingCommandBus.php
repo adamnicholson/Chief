@@ -15,6 +15,20 @@ use Chief\QueueableCommand;
  */
 class QueueingCommandBus implements CommandBus
 {
+    /**
+     * @var \Chief\CommandBus
+     */
+    protected $innerBus;
+
+    /**
+     * @var \Chief\CommandBusQueuer
+     */
+    protected $queuer;
+
+    /**
+     * @param CommandBusQueuer $queuer
+     * @param CommandBus $innerBus
+     */
     public function __construct(CommandBusQueuer $queuer, CommandBus $innerBus = null)
     {
         $this->queuer = $queuer;
