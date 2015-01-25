@@ -2,17 +2,14 @@
 
 namespace Chief\Decorators;
 
-use Chief\ChiefTest;
 use Chief\CommandBus;
 use Chief\Stubs\TestCommand;
 
-class EventDispatchingDecoratorTest extends ChiefTest
+class EventDispatchingDecoratorTest extends DecoratorTest
 {
     public function testInstance()
     {
-        $decorator = new EventDispatchingDecorator(
-            $this->getMock('Chief\Decorators\EventDispatcher')
-        );
+        $decorator = $this->getDecorator();
         $decorator->setInnerBus($this->getMock('Chief\CommandBus'));
         $this->assertTrue($decorator instanceof CommandBus);
     }
@@ -27,5 +24,10 @@ class EventDispatchingDecoratorTest extends ChiefTest
         $bus->expects($this->once())->method('execute')->with($command);
         $dispatcher->expects($this->once())->method('dispatch')->with('Chief.Stubs.TestCommand', [$command]);
         $decorator->execute($command);
+    }
+
+    protected function getDecorator()
+    {
+        return new EventDispatchingDecorator($this->getMock('Chief\Decorators\EventDispatcher'));
     }
 }

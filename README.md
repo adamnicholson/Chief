@@ -1,6 +1,6 @@
 #Chief
 
-[![Build Status](https://travis-ci.org/adamnicholson/chief.svg?branch=master)](https://travis-ci.org/adamnicholson/chief)
+[![Build Status](https://travis-ci.org/adamnicholson/Chief.svg?branch=master)](https://travis-ci.org/adamnicholson/Chief)
 
 Chief is a lightweight command bus package for PHP 5.4+.
 
@@ -88,7 +88,9 @@ When you pass a `Command` to `Chief::execute()`, Chief will automatically search
     $chief = new Chief;
     $chief->execute(new MyCommand);
 
-By default, this will search for a `CommandHandler` class with the same name as your `Command`, suffixed with 'Handler'. For example, if your `Command` class is called `FooCommand`, Chief will look for a `FooCommandHandler` class, instantiate it and call `handle($command)`.
+By default, this will search for a `CommandHandler` with the same name as your `Command`, suffixed with 'Handler', in both the current namespace and in a nested `Handlers` namespace. 
+
+So `Commands\FooCommand` will automatically resolve to `Commands\FooCommandHandler` or `Commands\Handlers\FooCommandHandler` if either class exists.
 
 Want to implement your own method of automatically resolving handlers from commands? Implement your own version of the `Chief\CommandHandlerResolver` interface to modify the automatic resolution behaviour.
     
@@ -156,9 +158,9 @@ Registering multiple decorators:
     
 ## Queued Commands
 
-By default, commands are executed by the `SynchronousCommandBus`, which handles them straight away. You may however wish to queue commands to be executed later. This is where the `QueueingCommandBus` comes in.
+Commands are often used for 'actions' on your domain (eg. send an email, create a user, log an event, etc). For these type of commands where you don't need an immediate response you may wish to queue them to be executed later. This is where the `QueueableCommand` interface and the `QueueingCommandBus` come in.
 
-To use the `QueueingCommandBus`, you must first implement the `CommandBusQueuer` interface with your desired queue package:
+Firstly, to use the `QueueingCommandBus`, you must first implement the `CommandBusQueuer` interface with your desired queue package:
 
     interface CommandBusQueuer
     {
@@ -176,12 +178,22 @@ Next, inject the `QueueingCommandBus` when you start up Chief:
     $bus = new QueueingCommandBus($queuer);
     $chief = new Chief($bus);
     
+Then, implement `QueueableCommand` in any command which can be queued:
+
+	MyQueueableCommand implements Chief\QueueableCommand {}
+
 Then use Chief as normal:
 
-    $command = new MyCommand();
+    $command = new MyQueueableCommand();
     $chief->execute($command);
-    
-An implementation of this interface for illuminate/queue is [included](https://github.com/adamnicholson/Chief/blob/master/src/Bridge/Laravel/IlluminateQueuer.php).
+
+If you pass Chief any command which does not implement `QueueableCommand`, it will be executed immediately as normal:
+
+	$command = new MyCommand();
+	$chief->execute($command);
+
+
+> An implementation of `CommandQueuer` for illuminate/queue is [included](https://github.com/adamnicholson/Chief/blob/master/src/Bridge/Laravel/IlluminateQueuer.php).
 
 
 ## Dependency Injection Container Integration

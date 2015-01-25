@@ -130,4 +130,12 @@ class ChiefTest extends ChiefTestCase
             'This\Is\A\String\But\Decorators\Should\Be\Objects'
         ]);
     }
+
+    public function testInnerBusResponseIsReturnedByChief()
+    {
+        $chief = new Chief($bus = $this->getMock('Chief\CommandBus'));
+        $bus->expects($this->once())->method('execute')->willReturn('foo-bar');
+        $response = $bus->execute(new TestCommand);
+        $this->assertEquals($response, 'foo-bar');
+    }
 }

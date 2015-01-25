@@ -8,6 +8,8 @@ use Chief\CommandHandler;
 use Chief\CommandHandlerResolver;
 use Chief\Stubs\TestCommand;
 use Chief\Stubs\TestCommandHandler;
+use Chief\Stubs\TestCommandWithNestedHandler;
+use Chief\Stubs\Handlers\TestCommandWithNestedHandlerHandler;
 use Chief\Stubs\TestCommandWithoutHandler;
 
 class NativeCommandHandlerResolverTest extends ChiefTestCase
@@ -24,11 +26,18 @@ class NativeCommandHandlerResolverTest extends ChiefTestCase
         $resolver->resolve(new TestCommandWithoutHandler);
     }
 
-    public function testResolveReturnsHandlerWhenWithHandlerSuffix()
+    public function testResolveReturnsHandlerWhenNotBoundAndInSameNamespaceWithHandlerSuffix()
     {
         $resolver = new NativeCommandHandlerResolver;
         $handler = $resolver->resolve(new TestCommand);
         $this->assertTrue($handler instanceof TestCommandHandler);
+    }
+
+    public function testResolveReturnsHandlerWhenNotBoundAndHandlerNestedInHandlersNamespaceWithHandlerSuffix()
+    {
+        $resolver = new NativeCommandHandlerResolver;
+        $handler = $resolver->resolve(new TestCommandWithNestedHandler);
+        $this->assertTrue($handler instanceof TestCommandWithNestedHandlerHandler);
     }
 
     public function testResolveReturnsHandlerBoundByObject()

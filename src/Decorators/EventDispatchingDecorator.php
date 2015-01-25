@@ -22,15 +22,17 @@ class EventDispatchingDecorator implements Decorator
      * Execute a command and dispatch and event
      *
      * @param Command $command
-     * @return void
+     * @return mixed
      */
     public function execute(Command $command)
     {
-        $this->innerCommandBus->execute($command);
+        $response = $this->innerCommandBus->execute($command);
 
         $eventName = $this->getEventName($command);
 
         $this->dispatcher->dispatch($eventName, [$command]);
+
+        return $response;
     }
 
     /**

@@ -2,11 +2,10 @@
 
 namespace Chief\Bridge\Laravel;
 
-use Chief\ChiefTest;
+use Chief\ChiefTestCase;
 use Chief\Stubs\TestCommand;
-use Illuminate\Container\Container;
 
-class IlluminateEventDispatcherTest extends ChiefTest
+class IlluminateEventDispatcherTest extends ChiefTestCase
 {
     public function testDispatchHitsDispatcher()
     {
