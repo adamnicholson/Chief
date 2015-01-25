@@ -9,7 +9,6 @@ use Chief\Container;
 use Chief\Exceptions\UnresolvableCommandHandlerException;
 use Chief\Handlers\CallableCommandHandler;
 use Chief\Handlers\LazyLoadingCommandHandler;
-use Chief\Handlers\StringCommandHandler;
 use Chief\Containers\NativeContainer;
 
 class NativeCommandHandlerResolver implements CommandHandlerResolver
