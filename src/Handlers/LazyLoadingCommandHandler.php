@@ -16,7 +16,7 @@ class LazyLoadingCommandHandler implements CommandHandler
     /**
      * @var string
      */
-    protected $handler;
+    protected $handlerName;
 
     /**
      * @param string $handlerName
