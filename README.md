@@ -10,6 +10,7 @@ Chief is a lightweight command bus package for PHP 5.4+.
 - Anonymous functions as command handlers
 - Self-handling commands
 - Queued commands
+- Transactional commands
 - Lightweight interface
 - Framework agnostic
 
@@ -194,6 +195,40 @@ If you pass Chief any command which does not implement `QueueableCommand`, it wi
 
 
 > An implementation of `CommandQueuer` for illuminate/queue is [included](https://github.com/adamnicholson/Chief/blob/master/src/Bridge/Laravel/IlluminateQueuer.php).
+
+## Transactional Commands
+
+Using the `TransactionalCommandBus` can help to prevent more than 1 command being executed at any time. In practice, this means that you if you nest a command execution inside a command handler, the nested command will not be executed until the first command has completed.
+
+Here's an example:
+
+
+	use Chief\CommandBus;
+	use Chief\Command;
+	use Chief\TransactionalCommandBus;
+	
+	class RegisterUserCommandHandler implements CommandHandler {
+		public function __construct(CommandBus $bus, Users $users) {
+			$this->bus = $bus;
+		}
+		
+		public function handle(Command $command) {
+			$this->bus->execute(new RecordUserActivity('registered-user'));
+			Users::create([
+				'email' => $command->email,
+				'name' => $command->name
+			]);
+			throw new Exception('Something unexpected; could not create user');
+		}
+	}
+	
+	$bus = new TransactionalCommandBus();
+	$command = new RegisterUserCommand;
+	$command->email = 'foo@example.com';
+	$command->password = 'password123';
+	$bus->execute($command);
+
+So what's happening here? When `$this->bus->execute(new RecordUserActivity('registered-user'))` is called, that command is actually dropped into an in-memory queue, which will not execute until `RegisterCommandHandler::handle()` has finished. In this example, because we're showing that an `Exception` is thrown before the method completes, the `RecordUserActivity` command is never actually executed.
 
 
 ## Dependency Injection Container Integration
