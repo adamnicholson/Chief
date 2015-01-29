@@ -14,10 +14,13 @@ class LoggingDecorator implements Decorator
 
     /**
      * @param LoggerInterface $logger
+     * @param mixed $context Something which is serializable that will be logged with
+     * the command execution, such as the request/session information.
      */
-    public function __construct(LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger, $context = null)
     {
         $this->logger = $logger;
+        $this->context = $context;
     }
 
     /**
@@ -38,24 +41,26 @@ class LoggingDecorator implements Decorator
      */
     public function execute(Command $command)
     {
-        $this->log('Executing command [' . get_class($command) . ']', [$command]);
+        $this->log('Executing command [' . get_class($command) . ']', $command);
 
         try {
             $response = $this->innerCommandBus->execute($command);
         } catch (\Exception $e) {
-            $this->log('Failed executing command [' . get_class($command) . ']. ' .
-                $this->createExceptionString($e), [$command]);
+
+            $message = 'Failed executing command [' . get_class($command) . ']. ' . $this->createExceptionString($e);
+            $this->log($message, $command);
             throw $e;
         }
 
-        $this->log('Successfully executed command [' . get_class($command) . ']', [$command]);
+        $this->log('Successfully executed command [' . get_class($command) . ']', $command);
 
         return $response;
     }
 
-    protected function log($message, $context = [])
+    protected function log($message, $command)
     {
-        $this->logger->debug($message, $context);
+        $context = $this->context ? serialize($this->context) : null;
+        $this->logger->debug($message, ['Command' => serialize($command), 'Context' => $context]);
     }
 
     protected function createExceptionString(\Exception $e)

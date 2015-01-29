@@ -22,7 +22,7 @@ class LoggingDecoratorTest extends DecoratorTest
         $decorator->setInnerBus($bus = $this->getMock('Chief\CommandBus'));
         $command = new TestCommand();
         $bus->expects($this->once())->method('execute')->with($command);
-        $logger->expects($this->exactly(2))->method('debug')->with($this->anything(), [$command]);
+        $logger->expects($this->exactly(2))->method('debug')->with($this->anything(), ['Command' => serialize($command), 'Context' => null]);
         $decorator->execute($command);
     }
 
@@ -34,7 +34,7 @@ class LoggingDecoratorTest extends DecoratorTest
         $decorator->setInnerBus($bus = $this->getMock('Chief\CommandBus'));
         $command = new TestCommand();
         $bus->expects($this->once())->method('execute')->with($command)->will($this->throwException(new \Exception('Oops')));
-        $logger->expects($this->exactly(2))->method('debug')->with($this->anything(), [$command]);
+        $logger->expects($this->exactly(2))->method('debug')->with($this->anything(), ['Command' => serialize($command), 'Context' => null]);
 
         $this->setExpectedException('Exception');
         $decorator->execute($command);
