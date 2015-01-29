@@ -11,6 +11,7 @@ class LoggingDecorator implements Decorator
 {
     protected $innerCommandBus;
     protected $logger;
+    protected $context;
 
     /**
      * @param LoggerInterface $logger
