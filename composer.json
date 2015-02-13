@@ -1,5 +1,5 @@
 {
-    "name": "adamnicholson/chief",
+    "name": "chief/chief",
     "description": "A simple command bus for PHP",
     "license": "MIT",
     "authors": [
