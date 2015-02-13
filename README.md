@@ -60,7 +60,7 @@ In the below example, we demonstrate how a command bus design could handle regis
 
 ## Installation
 
-Install the latest version with `composer require adamnicholson/chief`, or see [Packagist](https://packagist.org/packages/adamnicholson/chief).
+Install the latest version with `composer require chief/chief`, or see [Packagist](https://packagist.org/packages/adamnicholson/chief).
 
 No further setup is required, however if you're using a framework and want to make sure that we play nicely (with DI Containers, Event handlers, etc), then use the bridges below.
 
