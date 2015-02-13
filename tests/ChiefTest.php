@@ -122,20 +122,11 @@ class ChiefTest extends ChiefTestCase
         $chief->execute($command);
         $this->assertEquals($command->handled, true);
     }
-
-    public function testInstanceThrowsExceptionWithInvalidDecorators()
-    {
-        $this->setExpectedException('InvalidArgumentException');
-        new Chief(new SynchronousCommandBus, [
-            'This\Is\A\String\But\Decorators\Should\Be\Objects'
-        ]);
-    }
-
     public function testInnerBusResponseIsReturnedByChief()
     {
         $chief = new Chief($bus = $this->getMock('Chief\CommandBus'));
         $bus->expects($this->once())->method('execute')->willReturn('foo-bar');
-        $response = $bus->execute(new TestCommand);
+        $response = $chief->execute(new TestCommand);
         $this->assertEquals($response, 'foo-bar');
     }
 }

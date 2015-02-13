@@ -3,9 +3,9 @@
 namespace Chief\Bridge\Laravel;
 
 use Chief\Command;
-use Chief\CommandBusQueuer;
+use Chief\CommandQueuer;
 
-class IlluminateQueuer implements CommandBusQueuer
+class IlluminateQueuer implements CommandQueuer
 {
     /**
      * Queue a Command for executing

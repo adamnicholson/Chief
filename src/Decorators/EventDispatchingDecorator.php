@@ -2,6 +2,7 @@
 
 namespace Chief\Decorators;
 
+use Chief\Busses\SynchronousCommandBus;
 use Chief\Command;
 use Chief\CommandBus;
 use Chief\Decorator;
@@ -22,9 +23,10 @@ class EventDispatchingDecorator implements Decorator
     /**
      * @param EventDispatcher $dispatcher
      */
-    public function __construct(EventDispatcher $dispatcher)
+    public function __construct(EventDispatcher $dispatcher, CommandBus $innerCommandBus = null)
     {
         $this->dispatcher = $dispatcher;
+        $this->setInnerBus($innerCommandBus ?: new SynchronousCommandBus());
     }
 
     public function setInnerBus(CommandBus $bus)

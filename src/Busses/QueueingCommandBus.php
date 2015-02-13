@@ -8,4 +8,7 @@ use Chief\Decorators\CommandQueueingDecorator;
 /**
  * @deprecated Use Chief\Decorators\CommandQueueingDecorator
  */
-class QueueingCommandBus extends CommandQueueingDecorator implements Decorator {}
+class QueueingCommandBus extends CommandQueueingDecorator implements Decorator
+{
+
+}

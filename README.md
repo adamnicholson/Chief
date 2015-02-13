@@ -149,22 +149,44 @@ Chief provides you with two decorators out-the-box:
 
 - *LoggingDecorator*: Log before and after all executions to a `Psr\Log\LoggerInterface`
 - *EventDispatchingDecorator*: Dispatch an event to a `Chief\Decorators\EventDispatcher` after every command execution.
+- *CommandQueueingDecorator*: Put the command into a Queue for later execution, if it implements `Chief\QueueableCommand`. (Read more under "Queued Commands")
+- *TransactionalCommandLockingDecorator*: Lock the command bus when a command implementing `Chief\TransactionalCommand` is being executed. (Read more under "Transactional Commands")
     
 Registering multiple decorators:
 
+    // Attach decorators when you instantiate
     $chief = new Chief(new SynchronousCommandBus, [
         new LoggingDecorator($logger),
         new EventDispatchingDecorator($eventDispatcher)
     ]);
+
+    // Or attach decorators later
+    $chief = new Chief();
+    $chief->pushDecorator(new LoggingDecorator($logger));
+    $chief->pushDecorator(new EventDispatchingDecorator($eventDispatcher));
+    
+    // Or manually stack decorators
+    $chief = new Chief(
+        new EventDispatchingtDecorator($eventDispatcher,
+            new LoggingDecorator($logger, $context, 
+                new CommandQueueingDecorator($queuer, 
+                    new TransactionalCommandLockingDecorator(
+                        new CommandQueueingDecorator($queuer, 
+                            new SynchronousCommandBus()
+                        )
+                    )
+                )
+            )
+        )
+    );
     
 ## Queued Commands
 
-Commands are often used for 'actions' on your domain (eg. send an email, create a user, log an event, etc). For these type of commands where you don't need an immediate response you may wish to queue them to be executed later. This is where the `QueueableCommand` interface and the `QueueingCommandBus` come in.
+Commands are often used for 'actions' on your domain (eg. send an email, create a user, log an event, etc). For these type of commands where you don't need an immediate response you may wish to queue them to be executed later. This is where the `CommandQueueingDecorator` comes in to play.
 
-Firstly, to use the `QueueingCommandBus`, you must first implement the `CommandBusQueuer` interface with your desired queue package:
+Firstly, to use the `CommandQueueingDecorator`, you must first implement the `CommandQueuer` interface with your desired queue package:
 
-    interface CommandBusQueuer
-    {
+    interface CommandQueuer {
         /**
          * Queue a Command for executing
          *
@@ -173,11 +195,13 @@ Firstly, to use the `QueueingCommandBus`, you must first implement the `CommandB
         public function queue(Command $command);
     }
 
-Next, inject the `QueueingCommandBus` when you start up Chief:
+> An implementation of `CommandQueuer` for illuminate/queue is [included](https://github.com/adamnicholson/Chief/blob/master/src/Bridge/Laravel/IlluminateQueuer.php).
 
+Next, attach the `CommandQueueingDecorator` decorator:
+
+    $chief = new Chief();
     $queuer = MyCommandBusQueuer();
-    $bus = new QueueingCommandBus($queuer);
-    $chief = new Chief($bus);
+    $chief->pushDecorator(new QueueingCommandBus($queuer));
     
 Then, implement `QueueableCommand` in any command which can be queued:
 
@@ -188,24 +212,19 @@ Then use Chief as normal:
     $command = new MyQueueableCommand();
     $chief->execute($command);
 
-If you pass Chief any command which does not implement `QueueableCommand`, it will be executed immediately as normal:
+If you pass Chief any command which implements `QueueableCommand` it will be added to the queue. Any commands which do *not* implement `QueueableCommand` will be executed immediately as normal.
 
-	$command = new MyCommand();
-	$chief->execute($command);
-
-
-> An implementation of `CommandQueuer` for illuminate/queue is [included](https://github.com/adamnicholson/Chief/blob/master/src/Bridge/Laravel/IlluminateQueuer.php).
 
 ## Transactional Commands
 
-Using the `TransactionalCommandBus` can help to prevent more than 1 command being executed at any time. In practice, this means that you if you nest a command execution inside a command handler, the nested command will not be executed until the first command has completed.
+Using the `TransactionalCommandLockingDecorator` can help to prevent more than 1 command being executed at any time. In practice, this means that you if you nest a command execution inside a command handler, the nested command will not be executed until the first command has completed.
 
 Here's an example:
 
 
 	use Chief\CommandBus;
 	use Chief\Command;
-	use Chief\TransactionalCommandBus;
+	use Chief\Decorators\TransactionalCommandLockingDecorator;
 	
 	class RegisterUserCommandHandler implements CommandHandler {
 		public function __construct(CommandBus $bus, Users $users) {
@@ -213,7 +232,7 @@ Here's an example:
 		}
 		
 		public function handle(Command $command) {
-			$this->bus->execute(new RecordUserActivity('registered-user'));
+			$this->bus->execute(new RecordUserActivity('this-will-never-be-executed'));
 			Users::create([
 				'email' => $command->email,
 				'name' => $command->name
@@ -222,13 +241,16 @@ Here's an example:
 		}
 	}
 	
-	$bus = new TransactionalCommandBus();
+	$chief = new Chief();
+	$chief->pushDecorator(new TransactionalCommandLockingDecorator());
+	
 	$command = new RegisterUserCommand;
 	$command->email = 'foo@example.com';
 	$command->password = 'password123';
-	$bus->execute($command);
+	
+	$chief->execute($command);
 
-So what's happening here? When `$this->bus->execute(new RecordUserActivity('registered-user'))` is called, that command is actually dropped into an in-memory queue, which will not execute until `RegisterCommandHandler::handle()` has finished. In this example, because we're showing that an `Exception` is thrown before the method completes, the `RecordUserActivity` command is never actually executed.
+So what's happening here? When `$chief->execute(new RecordUserActivity('registered-user'))` is called, that command is actually dropped into an in-memory queue, which will not execute until `RegisterCommandHandler::handle()` has finished. In this example, because we're showing that an `Exception` is thrown before the method completes, the `RecordUserActivity` command is never actually executed.
 
 
 ## Dependency Injection Container Integration
@@ -238,15 +260,19 @@ If you want to use your own Dependency Injection Container to control the actual
 
 For example, if you're using Laravel:
 
-    class IlluminateContainer implements Chief\Container {
+    use Chief\Resolvers\NativeCommandHandlerResolver,
+        Chief\Chief,
+        Chief\Busses\SynchronousCommandBus,
+        Chief\Container;
+    
+    class IlluminateContainer implements Container {
         public function make($class) {
-            return App::make($class);
+            return \App::make($class);
         }
     }
     
-	$resolver = new Chief\NativeCommandHandlerResolver(new IlluminateContainer);
-	$bus = new SynchronousCommandBus($resolver);
-    $chief = new Chief($bus);
+	$resolver = new NativeCommandHandlerResolver(new IlluminateContainer);
+    $chief = new Chief(new SynchronousCommandBus($resolver));
     $chief->execute(new MyCommand);
 
 ## Author

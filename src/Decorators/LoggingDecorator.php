@@ -2,6 +2,7 @@
 
 namespace Chief\Decorators;
 
+use Chief\Busses\SynchronousCommandBus;
 use Chief\Command;
 use Chief\CommandBus;
 use Chief\Decorator;
@@ -9,8 +10,15 @@ use Psr\Log\LoggerInterface;
 
 class LoggingDecorator implements Decorator
 {
-    protected $innerCommandBus;
+    use InnerBusTrait;
+    /**
+     * @var LoggerInterface
+     */
     protected $logger;
+
+    /**
+     * @var mixed|null
+     */
     protected $context;
 
     /**
@@ -18,19 +26,11 @@ class LoggingDecorator implements Decorator
      * @param mixed $context Something which is serializable that will be logged with
      * the command execution, such as the request/session information.
      */
-    public function __construct(LoggerInterface $logger, $context = null)
+    public function __construct(LoggerInterface $logger, $context = null, CommandBus $innerCommandBus = null)
     {
         $this->logger = $logger;
         $this->context = $context;
-    }
-
-    /**
-     * @param CommandBus $bus
-     * @return void
-     */
-    public function setInnerBus(CommandBus $bus)
-    {
-        $this->innerCommandBus = $bus;
+        $this->setInnerBus($innerCommandBus ?: new SynchronousCommandBus());
     }
 
     /**

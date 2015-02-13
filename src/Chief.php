@@ -21,21 +21,24 @@ class Chief implements CommandBus
      *
      * @param CommandBus $bus
      * @param array $decorators Array of \Chief\Decorator objects
-     * @throws \InvalidArgumentException when invalid decorators are passed
      */
     public function __construct(CommandBus $bus = null, array $decorators = [])
     {
         $this->bus = $bus ?: new SynchronousCommandBus;
 
         foreach ($decorators as $decorator) {
-            if (!$decorator instanceof Decorator) {
-                throw new \InvalidArgumentException('Decorators must implement [Chief\Decorator]');
-            }
-
-            $decorator->setInnerBus($this->bus);
-
-            $this->bus = $decorator;
+            $this->pushDecorator($decorator);
         }
+    }
+
+    /**
+     * Push a new Decorator on to the stack
+     * @param Decorator $decorator
+     */
+    public function pushDecorator(Decorator $decorator)
+    {
+        $decorator->setInnerBus($this->bus);
+        $this->bus = $decorator;
     }
 
     /**

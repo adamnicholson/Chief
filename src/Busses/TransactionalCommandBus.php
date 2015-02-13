@@ -8,4 +8,7 @@ use Chief\Decorators\TransactionalCommandLockingDecorator;
 /**
  * @deprecated Use \Chief\Decorators\TransactionalCommandLockingDecorator
  */
-class TransactionalCommandBus extends TransactionalCommandLockingDecorator implements Decorator {}
+class TransactionalCommandBus extends TransactionalCommandLockingDecorator implements Decorator
+{
+
+}
