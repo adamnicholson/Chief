@@ -1,6 +1,6 @@
 {
     "name": "chief/chief",
-    "description": "A simple command bus for PHP",
+    "description": "A powerful framework-agnostic command bus package",
     "license": "MIT",
     "authors": [
         {

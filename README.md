@@ -2,7 +2,7 @@
 
 [![Build Status](https://scrutinizer-ci.com/g/adamnicholson/Chief/badges/build.png?b=master)](https://scrutinizer-ci.com/g/adamnicholson/Chief/build-status/master) [![Code Coverage](https://scrutinizer-ci.com/g/adamnicholson/Chief/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/adamnicholson/Chief/?branch=master) [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/adamnicholson/Chief/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/adamnicholson/Chief/?branch=master) [![SensioLabsInsight](https://insight.sensiolabs.com/projects/2459f377-6af7-43b8-98df-c67f42138080/mini.png)](https://insight.sensiolabs.com/projects/2459f377-6af7-43b8-98df-c67f42138080)
 
-Chief is a lightweight command bus package for PHP 5.4+.
+Chief is a powerful command bus package for PHP 5.4+.
 
 ## Features
 
@@ -11,7 +11,6 @@ Chief is a lightweight command bus package for PHP 5.4+.
 - Self-handling commands
 - Queued commands
 - Transactional commands
-- Lightweight interface
 - Framework agnostic
 
 ## Command Bus?
