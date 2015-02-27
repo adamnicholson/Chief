@@ -6,6 +6,7 @@ use Chief\Busses\SynchronousCommandBus;
 use Chief\Decorators\LoggingDecorator;
 use Chief\Resolvers\NativeCommandHandlerResolver;
 use Chief\Stubs\LogDecoratorCommandBus;
+use Chief\Stubs\NonInterfaceImplementingCommand;
 use Chief\Stubs\SelfHandlingCommand;
 use Chief\Stubs\TestCommand;
 use Chief\Stubs\TestCommandWithoutHandler;
@@ -128,5 +129,13 @@ class ChiefTest extends ChiefTestCase
         $bus->expects($this->once())->method('execute')->willReturn('foo-bar');
         $response = $chief->execute(new TestCommand);
         $this->assertEquals($response, 'foo-bar');
+    }
+
+    public function testExecuteWithHandlerWhichDoesNotImplementInterface()
+    {
+        $command = new NonInterfaceImplementingCommand();
+        $chief = new Chief();
+        $chief->execute($command);
+        $this->assertTrue($command->handled);
     }
 }
