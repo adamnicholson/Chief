@@ -15,7 +15,6 @@ Chief is a powerful command bus package for PHP 5.4+.
 
 ## Command Bus?
 
-
 > The most common style of interface to a module is to use procedures, or object methods. So if you want a module to calculate a bunch of charges for a contract, you might have a BillingService class with a method for doing the calculation, calling it like this `$billingService->calculateCharges($contract);`. A command oriented interface would have a command class for each operation, and be called with something like this `$cmd = new CalculateChargesCommand($contract); $cmd->execute();`. Essentially you have one command class for each method that you would have in the method-oriented interface. A common variation is to have a separate command executor object that actually does the running of the command. `$command = new CalculateChargesCommand($contract); $commandBus->execute($command);`
 
 -- From [Martin Fowler's Blog](http://martinfowler.com/bliki/CommandOrientedInterface.html) (*code samples haven ported to PHP*):
@@ -30,31 +29,32 @@ For every `Command` in your application, there should be a corresponding `Comman
 
 In the below example, we demonstrate how a command bus design could handle registering a new user in your system using Chief:
 
-	use Chief\Chief, Chief\Command, Chief\CommandHandler;
-	
-	class RegisterUserCommand implements Command {
-		public $email;
-		public $name;
+```php
+use Chief\Chief, Chief\Command;
+
+class RegisterUserCommand implements Command {
+	public $email;
+	public $name;
+}
+
+class RegisterUserCommandHandler {
+	public function handle(RegisterUserCommand $command) {
+		Users::create([
+			'email' => $command->email,
+			'name' => $command->name
+		]);
+		Mailer::sendWelcomeEmail($command->email);
 	}
-	
-	class RegisterUserCommandHandler implements CommandHandler {
-		public function handle(Command $command) {
-			Users::create([
-				'email' => $command->email,
-				'name' => $command->name
-			]);
-			Mailer::sendWelcomeEmail($command->email);
-		}
-	}
-	
-	$chief = new Chief;
+}
 
-	$registerUserCommand = new RegisterUserCommand;
-	$registerUserCommand->email = 'adamnicholson10@gmail.com';
-	$registerUserCommand->name = 'Adam Nicholson';
+$chief = new Chief;
 
-	$chief->execute($registerUserCommand);
+$registerUserCommand = new RegisterUserCommand;
+$registerUserCommand->email = 'adamnicholson10@gmail.com';
+$registerUserCommand->name = 'Adam Nicholson';
 
+$chief->execute($registerUserCommand);
+```
 
 
 ## Installation
@@ -67,26 +67,31 @@ No further setup is required, however if you're using a framework and want to ma
 
 After installing via composer, add the below to the `$providers` array in your `app/config/app.php`:
 
-    'Chief\Bridge\Laravel\LaravelServiceProvider'
+```php
+'Chief\Bridge\Laravel\LaravelServiceProvider'
+```
 
 ## Usage
 
 We'll use the below command/handler for the usage examples:
 
-    use Chief\Chief, Chief\Command, Chief\CommandHandler;
-    
-    class MyCommand implements Command {}
-    class MyCommandHandler implements CommandHandler {
-        public function handle(Command $command) { /* ... */ }
-    }
-    
+```php
+use Chief\Chief, Chief\Command;
+
+class MyCommand implements Command {}
+class MyCommandHandler {
+    public function handle(MyCommand $command) { /* ... */ }
+}
+```   
    
 #### Automatic handler resolution
 
 When you pass a `Command` to `Chief::execute()`, Chief will automatically search for the relevant `CommandHandler` and call the `handle()` method:
 
-    $chief = new Chief;
-    $chief->execute(new MyCommand);
+```php
+$chief = new Chief;
+$chief->execute(new MyCommand);
+```
 
 By default, this will search for a `CommandHandler` with the same name as your `Command`, suffixed with 'Handler', in both the current namespace and in a nested `Handlers` namespace. 
 
@@ -98,49 +103,59 @@ Want to implement your own method of automatically resolving handlers from comma
 
 If your handlers don't follow a particular naming convention, you can explicitly bind a command to a handler by its class name:
 
-    use Chief\Chief, Chief\NativeCommandHandlerResolver, Chief\Busses\SynchronousCommandBus;
-    
-	$resolver = new NativeCommandHandlerResolver();
-	$bus = new SynchronousCommandBus($resolver);
-	$chief = new Chief($resolver);
-	
-	$resolver->bindHandler('MyCommand', 'MyCommandHandler');
-	
-    $chief->execute(new MyCommand);
+```php
+use Chief\Chief, Chief\NativeCommandHandlerResolver, Chief\Busses\SynchronousCommandBus;
+
+$resolver = new NativeCommandHandlerResolver();
+$bus = new SynchronousCommandBus($resolver);
+$chief = new Chief($resolver);
+
+$resolver->bindHandler('MyCommand', 'MyCommandHandler');
+
+$chief->execute(new MyCommand);
+```
     
 #### Handlers bound by object
 
 Or, just pass your `CommandHandler` instance:
     
-	$resolver->bindHandler('MyCommand', new MyCommandHandler);
+```php
+$resolver->bindHandler('MyCommand', new MyCommandHandler);
 
-    $chief->execute(new MyCommand);
-    
+$chief->execute(new MyCommand);
+```
+
 #### Handlers as anonymous functions
 
 Sometimes you might want to quickly write a handler for your `Command` without having to write a new class. With Chief you can do this by passing an anonymous function as your handler:
-	
-	$resolver->bindHandler('MyCommand', function (Command $command) {
-        /* ... */
-    });
 
-    $chief->execute(new MyCommand);
+```php	
+$resolver->bindHandler('MyCommand', function (Command $command) {
+    /* ... */
+});
+
+$chief->execute(new MyCommand);
+```
     
 #### Self-handling commands
 
 Alternatively, you may want to simply allow a `Command` object to execute itself. To do this, just ensure your `Command` class also implements `CommandHandler`:
 
-    class SelfHandlingCommand implements Command, CommandHandler {
-        public function handle(Command $command) { /* ... */ }
-    }
-    $chief->execute(new SelfHandlingCommand);
+```php
+class SelfHandlingCommand implements Command, CommandHandler {
+    public function handle(Command $command) { /* ... */ }
+}
+$chief->execute(new SelfHandlingCommand);
+```
 
 ## Decorators
 Imagine you want to log every command execution. You could do this by adding a call to your logger in every `CommandHandler`, however a much more elegant solution is to use decorators.
 
 Registering a decorator:
 
-    $chief = new Chief(new SynchronousCommandBus, [new LoggingDecorator($logger)]);
+```php
+$chief = new Chief(new SynchronousCommandBus, [new LoggingDecorator($logger)]);
+```
     
 Now, whenever `Chief::execute()` is called, the command will be passed to `LoggingDecorator::execute()`, which will perform some log action, and then pass the command to the relevant `CommandHandler`.
 
@@ -153,31 +168,33 @@ Chief provides you with two decorators out-the-box:
     
 Registering multiple decorators:
 
-    // Attach decorators when you instantiate
-    $chief = new Chief(new SynchronousCommandBus, [
-        new LoggingDecorator($logger),
-        new EventDispatchingDecorator($eventDispatcher)
-    ]);
+```php
+// Attach decorators when you instantiate
+$chief = new Chief(new SynchronousCommandBus, [
+    new LoggingDecorator($logger),
+    new EventDispatchingDecorator($eventDispatcher)
+]);
 
-    // Or attach decorators later
-    $chief = new Chief();
-    $chief->pushDecorator(new LoggingDecorator($logger));
-    $chief->pushDecorator(new EventDispatchingDecorator($eventDispatcher));
-    
-    // Or manually stack decorators
-    $chief = new Chief(
-        new EventDispatchingtDecorator($eventDispatcher,
-            new LoggingDecorator($logger, $context, 
-                new CommandQueueingDecorator($queuer, 
-                    new TransactionalCommandLockingDecorator(
-                        new CommandQueueingDecorator($queuer, 
-                            new SynchronousCommandBus()
-                        )
+// Or attach decorators later
+$chief = new Chief();
+$chief->pushDecorator(new LoggingDecorator($logger));
+$chief->pushDecorator(new EventDispatchingDecorator($eventDispatcher));
+
+// Or manually stack decorators
+$chief = new Chief(
+    new EventDispatchingtDecorator($eventDispatcher,
+        new LoggingDecorator($logger, $context, 
+            new CommandQueueingDecorator($queuer, 
+                new TransactionalCommandLockingDecorator(
+                    new CommandQueueingDecorator($queuer, 
+                        new SynchronousCommandBus()
                     )
                 )
             )
         )
-    );
+    )
+);
+```
     
 ## Queued Commands
 
@@ -185,31 +202,39 @@ Commands are often used for 'actions' on your domain (eg. send an email, create 
 
 Firstly, to use the `CommandQueueingDecorator`, you must first implement the `CommandQueuer` interface with your desired queue package:
 
-    interface CommandQueuer {
-        /**
-         * Queue a Command for executing
-         *
-         * @param Command $command
-         */
-        public function queue(Command $command);
-    }
+```php
+interface CommandQueuer {
+    /**
+     * Queue a Command for executing
+     *
+     * @param Command $command
+     */
+    public function queue(Command $command);
+}
+```
 
 > An implementation of `CommandQueuer` for illuminate/queue is [included](https://github.com/adamnicholson/Chief/blob/master/src/Bridge/Laravel/IlluminateQueuer.php).
 
 Next, attach the `CommandQueueingDecorator` decorator:
 
-    $chief = new Chief();
-    $queuer = MyCommandBusQueuer();
-    $chief->pushDecorator(new QueueingCommandBus($queuer));
+```php
+$chief = new Chief();
+$queuer = MyCommandBusQueuer();
+$chief->pushDecorator(new QueueingCommandBus($queuer));
+```
     
 Then, implement `QueueableCommand` in any command which can be queued:
 
-	MyQueueableCommand implements Chief\QueueableCommand {}
+```php
+MyQueueableCommand implements Chief\QueueableCommand {}
+```
 
 Then use Chief as normal:
 
-    $command = new MyQueueableCommand();
-    $chief->execute($command);
+```php
+$command = new MyQueueableCommand();
+$chief->execute($command);
+```
 
 If you pass Chief any command which implements `QueueableCommand` it will be added to the queue. Any commands which do *not* implement `QueueableCommand` will be executed immediately as normal.
 
@@ -220,34 +245,35 @@ Using the `TransactionalCommandLockingDecorator` can help to prevent more than 1
 
 Here's an example:
 
+```php
+use Chief\CommandBus;
+use Chief\Command;
+use Chief\Decorators\TransactionalCommandLockingDecorator;
 
-	use Chief\CommandBus;
-	use Chief\Command;
-	use Chief\Decorators\TransactionalCommandLockingDecorator;
-	
-	class RegisterUserCommandHandler implements CommandHandler {
-		public function __construct(CommandBus $bus, Users $users) {
-			$this->bus = $bus;
-		}
-		
-		public function handle(Command $command) {
-			$this->bus->execute(new RecordUserActivity('this-will-never-be-executed'));
-			Users::create([
-				'email' => $command->email,
-				'name' => $command->name
-			]);
-			throw new Exception('Something unexpected; could not create user');
-		}
+class RegisterUserCommandHandler {
+	public function __construct(CommandBus $bus, Users $users) {
+		$this->bus = $bus;
 	}
 	
-	$chief = new Chief();
-	$chief->pushDecorator(new TransactionalCommandLockingDecorator());
-	
-	$command = new RegisterUserCommand;
-	$command->email = 'foo@example.com';
-	$command->password = 'password123';
-	
-	$chief->execute($command);
+	public function handle(RegisterUserCommand $command) {
+		$this->bus->execute(new RecordUserActivity('this-will-never-be-executed'));
+		Users::create([
+			'email' => $command->email,
+			'name' => $command->name
+		]);
+		throw new Exception('Something unexpected; could not create user');
+	}
+}
+
+$chief = new Chief();
+$chief->pushDecorator(new TransactionalCommandLockingDecorator());
+
+$command = new RegisterUserCommand;
+$command->email = 'foo@example.com';
+$command->password = 'password123';
+
+$chief->execute($command);
+```
 
 So what's happening here? When `$chief->execute(new RecordUserActivity('registered-user'))` is called, that command is actually dropped into an in-memory queue, which will not execute until `RegisterCommandHandler::handle()` has finished. In this example, because we're showing that an `Exception` is thrown before the method completes, the `RecordUserActivity` command is never actually executed.
 
@@ -259,20 +285,22 @@ If you want to use your own Dependency Injection Container to control the actual
 
 For example, if you're using Laravel:
 
-    use Chief\Resolvers\NativeCommandHandlerResolver,
-        Chief\Chief,
-        Chief\Busses\SynchronousCommandBus,
-        Chief\Container;
-    
-    class IlluminateContainer implements Container {
-        public function make($class) {
-            return \App::make($class);
-        }
+```php
+use Chief\Resolvers\NativeCommandHandlerResolver,
+    Chief\Chief,
+    Chief\Busses\SynchronousCommandBus,
+    Chief\Container;
+
+class IlluminateContainer implements Container {
+    public function make($class) {
+        return \App::make($class);
     }
-    
-	$resolver = new NativeCommandHandlerResolver(new IlluminateContainer);
-    $chief = new Chief(new SynchronousCommandBus($resolver));
-    $chief->execute(new MyCommand);
+}
+
+$resolver = new NativeCommandHandlerResolver(new IlluminateContainer);
+$chief = new Chief(new SynchronousCommandBus($resolver));
+$chief->execute(new MyCommand);
+```
 
 ## Author
 
