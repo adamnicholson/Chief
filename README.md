@@ -227,7 +227,7 @@ Next, attach the `CommandQueueingDecorator` decorator:
 ```php
 $chief = new Chief();
 $queuer = MyCommandBusQueuer();
-$chief->pushDecorator(new QueueingCommandBus($queuer));
+$chief->pushDecorator(new CommandQueueingDecorator($queuer));
 ```
     
 Then, implement `QueueableCommand` in any command which can be queued:
@@ -244,6 +244,8 @@ $chief->execute($command);
 ```
 
 If you pass Chief any command which implements `QueueableCommand` it will be added to the queue. Any commands which do *not* implement `QueueableCommand` will be executed immediately as normal.
+
+If your commands implement `QueueableCommand` but you are not using the `CommandQueueingDecorator`, then they will be executed immediately as normal. For this reason, it is good practice to implement `QueueableCommand` for any commands which may be queued in the future, even if you aren't using the queueing decorator yet.
 
 
 ## Transactional Commands
