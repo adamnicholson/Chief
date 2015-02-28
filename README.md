@@ -6,7 +6,6 @@ Chief is a powerful standalone command bus package for PHP 5.4+.
 
 ## Contents
 
-- [Features](#features)
 - [What is a command bus](#command-bus)
 - [Installation](#installation)
 - [Usage](#usage)
