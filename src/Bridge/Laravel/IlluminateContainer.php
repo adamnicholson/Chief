@@ -3,15 +3,17 @@
 namespace Chief\Bridge\Laravel;
 
 use Chief\Container;
-use Illuminate\Foundation\Application;
 
 class IlluminateContainer implements Container
 {
-    protected $app;
+    /**
+     * @var \Illuminate\Container\Container
+     */
+    protected $container;
 
-    public function __construct(Application $app)
+    public function __construct(\Illuminate\Container\Container $container)
     {
-        $this->app = $app;
+        $this->container = $container;
     }
 
     /**
@@ -22,6 +24,6 @@ class IlluminateContainer implements Container
      */
     public function make($class)
     {
-        return $this->app->make($class);
+        return $this->container->make($class);
     }
 }

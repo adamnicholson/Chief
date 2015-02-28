@@ -2,16 +2,24 @@
 
 [![Build Status](https://scrutinizer-ci.com/g/adamnicholson/Chief/badges/build.png?b=master)](https://scrutinizer-ci.com/g/adamnicholson/Chief/build-status/master) [![Code Coverage](https://scrutinizer-ci.com/g/adamnicholson/Chief/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/adamnicholson/Chief/?branch=master) [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/adamnicholson/Chief/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/adamnicholson/Chief/?branch=master) [![SensioLabsInsight](https://insight.sensiolabs.com/projects/2459f377-6af7-43b8-98df-c67f42138080/mini.png)](https://insight.sensiolabs.com/projects/2459f377-6af7-43b8-98df-c67f42138080)
 
-Chief is a powerful command bus package for PHP 5.4+.
+Chief is a powerful standalone command bus package for PHP 5.4+.
 
-## Features
+## Contents
 
-- Class-based command handlers
-- Anonymous functions as command handlers
-- Self-handling commands
-- Queued commands
-- Transactional commands
-- Framework agnostic
+- [Features](#features)
+- [What is a command bus](#command-bus)
+- [Installation](#installation)
+- [Usage](#usage)
+    - [Class-based command handlers](#automatic-handler-resolution)
+    - [Anonymous functions as command handlers](#handlers-as-anonymous-functions)
+    - [Self-handling commands](#self-handling-commands)
+    - [Decorators](#decorators)
+    - [Queued commands](#queued-commands)
+    - [Transactional commands](#transactional-commands)
+- [Dependcy injection container integration](#dependency-injection-container-integration)
+- [License](#license)
+- [Contributing](#contributing)
+- [Author](#author)
 
 ## Command Bus?
 
@@ -302,9 +310,23 @@ $chief = new Chief(new SynchronousCommandBus($resolver));
 $chief->execute(new MyCommand);
 ```
 
-## Author
+Containers have already been provided for :
 
-Adam Nicholson - adamnicholson10@gmail.com
+`Illuminate\Container`:
+
+```php
+$container = new \Illuminate\Container\Container;
+$resolver = new NativeCommandHandlerResolver(new \Chief\Bridge\Laravel\IlluminateContainer($container));
+$chief = new Chief(new \Chief\Busses\SynchronousCommandBus($resolver));
+```
+
+`League\Container`:
+
+```php
+$container = new \League\Container\Container;
+$resolver = new NativeCommandHandlerResolver(new \Chief\Bridge\Laravel\IlluminateContainer($container));
+$chief = new Chief(new \Chief\Busses\SynchronousCommandBus($resolver));
+```
 
 ## Contributing
 
@@ -313,3 +335,7 @@ We welcome any contributions to Chief. They can be made via GitHub issues or pul
 ## License
 
 Chief is licensed under the MIT License - see the `LICENSE.txt` file for details
+
+## Author
+
+Adam Nicholson - adamnicholson10@gmail.com

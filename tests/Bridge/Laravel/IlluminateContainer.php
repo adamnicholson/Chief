@@ -10,7 +10,7 @@ class IlluminateContainerTest extends ChiefTestCase
     public function testMakeHitsInnerContainer()
     {
         $container = new IlluminateContainer($inner = $this->getMock('Illuminate\Container\Container'));
-        $container->expects($this->once())->with('stdClass')->willReturn(new \stdClass());
+        $container->expects($this->once())->method('make')->with('stdClass')->willReturn(new \stdClass());
         $made = $container->make('stdClass');
         $this->assertTrue($made instanceof \stdClass);
     }
