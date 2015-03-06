@@ -1,6 +1,6 @@
 {
     "name": "chief/chief",
-    "description": "A powerful framework-agnostic command bus package",
+    "description": "A powerful standalone command bus package",
     "license": "MIT",
     "authors": [
         {
