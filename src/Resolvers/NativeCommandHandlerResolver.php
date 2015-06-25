@@ -68,6 +68,7 @@ class NativeCommandHandlerResolver implements CommandHandlerResolver
      *
      * @param string $commandName
      * @param CommandHandler|callable|string $handler
+     * @return void
      * @throws \InvalidArgumentException
      */
     public function bindHandler($commandName, $handler)

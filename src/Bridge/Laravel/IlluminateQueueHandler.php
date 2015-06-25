@@ -16,6 +16,10 @@ class IlluminateQueueHandler
         $this->bus = $bus;
     }
 
+    /**
+     * @param \Illuminate\Contracts\Queue\Job $job
+     * @param $serializedCommand
+     */
     public function fire($job, $serializedCommand)
     {
         $command = unserialize($serializedCommand);

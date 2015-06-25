@@ -22,6 +22,7 @@ class EventDispatchingDecorator implements Decorator
 
     /**
      * @param EventDispatcher $dispatcher
+     * @param CommandBus $innerCommandBus
      */
     public function __construct(EventDispatcher $dispatcher, CommandBus $innerCommandBus = null)
     {

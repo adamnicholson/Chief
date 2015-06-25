@@ -25,6 +25,7 @@ class LoggingDecorator implements Decorator
      * @param LoggerInterface $logger
      * @param mixed $context Something which is serializable that will be logged with
      * the command execution, such as the request/session information.
+     * @param CommandBus $innerCommandBus
      */
     public function __construct(LoggerInterface $logger, $context = null, CommandBus $innerCommandBus = null)
     {

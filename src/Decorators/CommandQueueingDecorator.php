@@ -17,7 +17,7 @@ class CommandQueueingDecorator implements Decorator
     use InnerBusTrait;
 
     /**
-     * @var \Chief\CommandBusQueuer
+     * @var \Chief\CommandQueuer
      */
     protected $queuer;
 
