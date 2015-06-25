@@ -2,16 +2,16 @@
 
 namespace Chief\Bridge\Laravel;
 
-use Chief\Busses\SynchronousCommandBus;
+use Chief\CommandBus;
 
 class IlluminateQueueHandler
 {
     protected $bus;
 
     /**
-     * @param SynchronousCommandBus $bus
+     * @param CommandBus $bus
      */
-    public function __construct(SynchronousCommandBus $bus)
+    public function __construct(CommandBus $bus)
     {
         $this->bus = $bus;
     }
