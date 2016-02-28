@@ -4,6 +4,9 @@ namespace Chief\Bridge\Laravel\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
+/**
+ * @method static mixed execute(\Chief\Command $command) Execute a command
+ */
 class Chief extends Facade
 {
     /**
