@@ -2,6 +2,7 @@
 
 namespace Chief\Decorators;
 
+use Chief\Busses\SynchronousCommandBus;
 use Chief\CacheableCommand;
 use Chief\Command;
 use Chief\CommandBus;
@@ -27,11 +28,13 @@ class CachingDecorator implements Decorator
      * CachingDecorator constructor.
      * @param CacheItemPoolInterface $cache
      * @param int $expiresAfter
+     * @param CommandBus $innerCommandBus
      */
-    public function __construct(CacheItemPoolInterface $cache, $expiresAfter = 3600)
+    public function __construct(CacheItemPoolInterface $cache, $expiresAfter = 3600, CommandBus $innerCommandBus = null)
     {
         $this->cache = $cache;
         $this->expiresAfter = $expiresAfter;
+        $this->setInnerBus($innerCommandBus ?: new SynchronousCommandBus);
     }
 
     /**
