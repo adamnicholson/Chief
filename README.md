@@ -247,6 +247,45 @@ If you pass Chief any command which implements `QueueableCommand` it will be add
 
 If your commands implement `QueueableCommand` but you are not using the `CommandQueueingDecorator`, then they will be executed immediately as normal. For this reason, it is good practice to implement `QueueableCommand` for any commands which may be queued in the future, even if you aren't using the queueing decorator yet.
 
+## Cached Command Execution
+
+The `CachingDecorator` can be used to store the execution return value for a given command.
+
+For example, you may have a `FetchUerReportCommand`, and an associated handler which takes a significant time to generate the "UserReport". Rather than re-generating the report every time, simply make `FetchUserReport` implement `CacheableCommand`, and the return value will be cached.
+
+Data is cached to a `psr/cache` (PSR-6) compatible cache library.
+
+> Chief does not supply a cache library. You must require this yourself and pass it in as a consturctor argument to the `CachingDecorator`.
+
+Example:
+
+```php
+use Chief\CommandBus,
+    Chief\CacheableCommand,
+    Chief\Decorators\CachingDecorator;
+
+$chief = new Chief();
+$chief->pushDecorator(new CachingDecorator(
+	$cache, // Your library of preference implementing PSR-6 CacheItemPoolInterface.
+	3600 // Time in seconds that values should be cached for. 3600 = 1 hour.
+));
+
+
+    
+class FetchUserReportCommand implements CacheableCommand { }
+
+class FetchUserReportCommahdHandler {
+	public function handle(FetchUserReportCommand $command) {
+		return 'foobar';
+	}
+}
+
+$report = $chief->execute(new FetchUserReportCommand); // (string) "foo" handle() is called
+$report = $chief->execute(new FetchUserReportCommand); // (string) "foo" Value taken from cache
+$report = $chief->execute(new FetchUserReportCommand); // (string) "foo" Value taken from cache
+
+
+```
 
 ## Transactional Commands
 
