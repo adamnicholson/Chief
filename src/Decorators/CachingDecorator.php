@@ -18,14 +18,20 @@ class CachingDecorator implements Decorator
      * @var CacheItemPoolInterface
      */
     private $cache;
+    /**
+     * @var int
+     */
+    private $expiresAfter;
 
     /**
      * CachingDecorator constructor.
      * @param CacheItemPoolInterface $cache
+     * @param int $expiresAfter
      */
-    public function __construct(CacheItemPoolInterface $cache)
+    public function __construct(CacheItemPoolInterface $cache, $expiresAfter = 3600)
     {
         $this->cache = $cache;
+        $this->expiresAfter = $expiresAfter;
     }
 
     /**
@@ -69,7 +75,7 @@ class CachingDecorator implements Decorator
         return new CacheItem(
             $this->createCacheKey($command),
             $value,
-            3600
+            $this->expiresAfter
         );
     }
 
