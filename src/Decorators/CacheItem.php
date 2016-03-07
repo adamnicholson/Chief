@@ -33,7 +33,6 @@ class CacheItem implements CacheItemInterface
      */
     public function __construct($key, $value, $expiresAfter)
     {
-
         $this->key = $key;
         $this->value = $value;
         $this->expiresAfter = $expiresAfter;
