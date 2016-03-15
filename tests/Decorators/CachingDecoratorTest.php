@@ -52,7 +52,11 @@ class CachingDecoratorTest extends DecoratorTest
 
         $notCachedItem = $this->prophesize(CacheItemInterface::class);
         $notCachedItem->isHit()->willReturn(false);
+        $notCachedItem->getKey()->willReturn(md5(serialize(($command))));
         $this->cache->getItem(Argument::any())->willReturn($notCachedItem->reveal());
+
+        $notCachedItem->set(7)->shouldBeCalled()->willReturn($notCachedItem->reveal());
+        $notCachedItem->expiresAfter(3600)->shouldBeCalled()->willReturn($notCachedItem->reveal());
 
         $this->cache->save(Argument::that(function (CacheItemInterface $item) use ($command) {
             return $item->getKey() === md5(serialize($command));

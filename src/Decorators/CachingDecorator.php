@@ -7,6 +7,7 @@ use Chief\CacheableCommand;
 use Chief\Command;
 use Chief\CommandBus;
 use Chief\Decorator;
+use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 
 class CachingDecorator implements Decorator
@@ -71,15 +72,13 @@ class CachingDecorator implements Decorator
      *
      * @param CacheableCommand $command
      * @param mixed $value
-     * @return CacheItem
+     * @return CacheItemInterface
      */
     private function createCacheItem(CacheableCommand $command, $value)
     {
-        return new CacheItem(
-            $this->createCacheKey($command),
-            $value,
-            $this->expiresAfter
-        );
+        return $this->cache->getItem($this->createCacheKey($command))
+            ->set($value)
+            ->expiresAfter($this->expiresAfter);
     }
 
     /**
