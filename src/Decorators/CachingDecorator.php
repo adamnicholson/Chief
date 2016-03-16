@@ -7,6 +7,7 @@ use Chief\CacheableCommand;
 use Chief\Command;
 use Chief\CommandBus;
 use Chief\Decorator;
+use Chief\HasCacheOptions;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 
@@ -55,7 +56,7 @@ class CachingDecorator implements Decorator
             return $this->innerBus->execute($command);
         }
 
-        $cached = $this->cache->getItem(self::createCacheKey($command));
+        $cached = $this->cache->getItem($this->getCacheKey($command));
         if ($cached->isHit()) {
             return $cached->get();
         }
@@ -76,9 +77,9 @@ class CachingDecorator implements Decorator
      */
     private function createCacheItem(CacheableCommand $command, $value)
     {
-        return $this->cache->getItem($this->createCacheKey($command))
-            ->set($value)
-            ->expiresAfter($this->expiresAfter);
+        return $this->cache->getItem($this->getCacheKey($command))
+            ->expiresAfter($this->getCacheExpiry($command))
+            ->set($value);
     }
 
     /**
@@ -91,8 +92,27 @@ class CachingDecorator implements Decorator
      * @param CacheableCommand $command
      * @return string
      */
-    private function createCacheKey(CacheableCommand $command)
+    private function getCacheKey(CacheableCommand $command)
     {
+        if ($command instanceof HasCacheOptions && $command->getCacheKey()) {
+            return $command->getCacheKey();
+        }
+
         return md5(serialize($command));
+    }
+
+    /**
+     * Determine when this CachableCommand should expire, in terms of seconds from now.
+     *
+     * @param CacheableCommand $command
+     * @return int
+     */
+    private function getCacheExpiry(CacheableCommand $command)
+    {
+        if ($command instanceof HasCacheOptions && $command->getCacheExpiry() > 0) {
+            return $command->getCacheExpiry();
+        }
+
+        return $this->expiresAfter;
     }
 }
