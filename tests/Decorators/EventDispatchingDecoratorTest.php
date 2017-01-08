@@ -10,16 +10,16 @@ class EventDispatchingDecoratorTest extends DecoratorTest
     public function testInstance()
     {
         $decorator = $this->getDecorator();
-        $decorator->setInnerBus($this->getMock('Chief\CommandBus'));
+        $decorator->setInnerBus($this->getMockBuilder('Chief\CommandBus')->getMock());
         $this->assertTrue($decorator instanceof CommandBus);
     }
 
     public function testExecuteFiresEventAndInnerBus()
     {
         $decorator = new EventDispatchingDecorator(
-            $dispatcher = $this->getMock('Chief\Decorators\EventDispatcher')
+            $dispatcher = $this->getMockBuilder('Chief\Decorators\EventDispatcher')->getMock()
         );
-        $decorator->setInnerBus($bus = $this->getMock('Chief\CommandBus'));
+        $decorator->setInnerBus($bus = $this->getMockBuilder('Chief\CommandBus')->getMock());
         $command = new TestCommand();
         $bus->expects($this->once())->method('execute')->with($command);
         $dispatcher->expects($this->once())->method('dispatch')->with('Chief.Stubs.TestCommand', [$command]);
@@ -28,6 +28,6 @@ class EventDispatchingDecoratorTest extends DecoratorTest
 
     protected function getDecorator()
     {
-        return new EventDispatchingDecorator($this->getMock('Chief\Decorators\EventDispatcher'));
+        return new EventDispatchingDecorator($this->getMockBuilder('Chief\Decorators\EventDispatcher')->getMock());
     }
 }

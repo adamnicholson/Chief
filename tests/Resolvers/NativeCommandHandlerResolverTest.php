@@ -42,7 +42,7 @@ class NativeCommandHandlerResolverTest extends ChiefTestCase
 
     public function testResolveReturnsHandlerBoundByObject()
     {
-        $handler = $this->getMock('Chief\CommandHandler');
+        $handler = $this->getMockBuilder('Chief\CommandHandler')->getMock();
         $resolver = new NativeCommandHandlerResolver;
         $resolver->bindHandler('Chief\Stubs\TestCommandWithoutHandler', $handler);
         $this->assertEquals($resolver->resolve(new TestCommandWithoutHandler), $handler);

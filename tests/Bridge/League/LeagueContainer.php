@@ -8,7 +8,7 @@ class LeagueContainerTest extends ChiefTestCase
 {
     public function testMakeHitsInnerContainer()
     {
-        $container = new LeagueContainer($inner = $this->getMock('League\Container\Container'));
+        $container = new LeagueContainer($inner = $this->getMockBuilder('League\Container\Container')->getMock());
         $container->expects($this->once())->method('get')->with('stdClass')->willReturn(new \stdClass());
         $made = $container->make('stdClass');
         $this->assertTrue($made instanceof \stdClass);
