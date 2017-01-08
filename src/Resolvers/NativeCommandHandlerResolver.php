@@ -33,7 +33,7 @@ class NativeCommandHandlerResolver implements CommandHandlerResolver
     {
         $commandName = get_class($command);
 
-        // Find the CommandHandler if it has been manually defined using pushHandler()
+        // Find the CommandHandler if it has been manually defined using bindHandler()
         foreach ($this->handlers as $handlerCommand => $handler) {
             if ($handlerCommand == $commandName) {
                 return $handler;

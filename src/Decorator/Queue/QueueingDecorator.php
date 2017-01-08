@@ -11,7 +11,7 @@ use Chief\Decorator\InnerBusTrait;
 /**
  * Queue commands which implement QueueableCommand into a CommandQueuer
  */
-class CommandQueueingDecorator implements Decorator
+class QueueingDecorator implements Decorator
 {
     use InnerBusTrait;
 

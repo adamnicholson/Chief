@@ -4,7 +4,7 @@ namespace Chief\Bridge\Laravel;
 
 use Chief\SynchronousCommandBus;
 use Chief\Chief;
-use Chief\Decorator\Queue\CommandQueueingDecorator;
+use Chief\Decorator\Queue\QueueingDecorator;
 use Chief\Resolvers\NativeCommandHandlerResolver;
 use Illuminate\Support\ServiceProvider;
 
@@ -65,7 +65,7 @@ class LaravelServiceProvider extends ServiceProvider
     {
         $this->app->bind('Chief\Busses\QueueingCommandBus', function () {
             $resolver = $this->app->make('Chief\CommandHandlerResolver');
-            return new CommandQueueingDecorator($this->app->make('Chief\Bridge\Laravel\IlluminateQueuer'), $resolver);
+            return new QueueingDecorator($this->app->make('Chief\Bridge\Laravel\IlluminateQueuer'), $resolver);
         });
     }
 
