@@ -13,9 +13,12 @@ Chief is a powerful standalone command bus package for PHP 5.4+.
     - [Anonymous functions as command handlers](#handlers-as-anonymous-functions)
     - [Self-handling commands](#self-handling-commands)
     - [Decorators](#decorators)
-    - [Queued commands](#queued-commands)
-    - [Transactional commands](#transactional-commands)
-- [Dependcy injection container integration](#dependency-injection-container-integration)
+        - [Queued commands](#queued-commands)
+        - [Cached commands](#cached-commands)
+        - [Event dispatcher](#event-dispatcher)
+        - [Logged commands](#logged-commands)
+        - [Transactional commands](#transactional-commands)
+    - [Dependcy injection container integration](#dependency-injection-container-integration)
 - [License](#license)
 - [Contributing](#contributing)
 - [Author](#author)
@@ -161,53 +164,70 @@ Imagine you want to log every command execution. You could do this by adding a c
 Registering a decorator:
 
 ```php
-$chief = new Chief(new SynchronousCommandBus, [new LoggingDecorator($logger)]);
+$chief = new Chief();
+$chief->pushDecorator(new LoggingDecorator($logger));
 ```
     
 Now, whenever `Chief::execute()` is called, the command will be passed to `LoggingDecorator::execute()`, which will perform some log action, and then pass the command to the relevant `CommandHandler`.
 
-Chief provides you with two decorators out-the-box:
+Chief provides you with these decorators out-the-box:
 
-- *LoggingDecorator*: Log before and after all executions to a `Psr\Log\LoggerInterface`
+- *LoggingDecorator*: Log all command executions to a `Psr\Log\LoggerInterface`
 - *EventDispatchingDecorator*: Dispatch an event to a `Chief\Decorator\EventDispatcher` after every command execution.
-- *CommandQueueingDecorator*: Put the command into a Queue for later execution, if it implements `Chief\QueueableCommand`. (Read more under "Queued Commands")
+- *QueueingDecorator*: Put the command into a Queue for later execution, if it implements `Chief\QueueableCommand`. (Read more under "Queued Commands")
 - *TransactionalCommandLockingDecorator*: Lock the command bus when a command implementing `Chief\TransactionalCommand` is being executed. (Read more under "Transactional Commands")
     
 Registering multiple decorators:
 
 ```php
-// Attach decorators when you instantiate
-$chief = new Chief(new SynchronousCommandBus, [
-    new LoggingDecorator($logger),
-    new EventDispatchingDecorator($eventDispatcher)
-]);
-
-// Or attach decorators later
 $chief = new Chief();
 $chief->pushDecorator(new LoggingDecorator($logger));
 $chief->pushDecorator(new EventDispatchingDecorator($eventDispatcher));
-
-// Or manually stack decorators
-$chief = new Chief(
-    new EventDispatchingtDecorator($eventDispatcher,
-        new LoggingDecorator($logger, $context, 
-            new CommandQueueingDecorator($queuer, 
-                new TransactionalCommandLockingDecorator(
-                    new CommandQueueingDecorator($queuer, 
-                        new SynchronousCommandBus()
-                    )
-                )
-            )
-        )
-    )
-);
+$chief->pushDecorator(new QueueingDecorator($queuer));
 ```
-    
-## Queued Commands
 
-Commands are often used for 'actions' on your domain (eg. send an email, create a user, log an event, etc). For these type of commands where you don't need an immediate response you may wish to queue them to be executed later. This is where the `CommandQueueingDecorator` comes in to play.
+#### Logged commands
 
-Firstly, to use the `CommandQueueingDecorator`, you must first implement the `CommandQueuer` interface with your desired queue package:
+The `LoggingDecorator` can be used to log all command executions to a PSR-3 compatible logger
+
+Example:
+
+```php
+$chief = new Chief();
+$chief->pushDecorator(new LoggingDecorator($logger)); // $logger is a PSR-3 Logger
+
+MyQueueableCommand implements Chief\QueueableCommand {}
+
+$command = new MyQueueableCommand();
+$chief->execute($command);
+```
+
+> Chief does not include an implementation of the LoggerInterface interface (PSR-3). You must create or use another package providing an implementation.
+
+#### Event dispatcher
+
+The `EventDispatchingDecorator` can be used to fire an event to your custom `EventDispatcher` whenever a command is executed.
+
+Example:
+
+```php
+$chief = new Chief();
+$chief->pushDecorator(new EventDispatchingDecorator($logger)); // $logger is a PSR-3 Logger
+
+MyQueueableCommand implements Chief\QueueableCommand {}
+
+$command = new MyQueueableCommand();
+$chief->execute($command);
+```
+
+> Chief does not include an implementation of the EventDispatcher interface. You must create or use another package providing an implementation.
+
+
+#### Queued Commands
+
+Commands are often used for 'actions' on your domain (eg. send an email, create a user, log an event, etc). For these type of commands where you don't need an immediate response you may wish to queue them to be executed later. This is where the `QueueingDecorator` comes in to play.
+
+Firstly, to use the `QueueingDecorator`, you must first implement the `CommandQueuer` interface with your desired queue package:
 
 ```php
 interface CommandQueuer {
@@ -222,57 +242,44 @@ interface CommandQueuer {
 
 > An implementation of `CommandQueuer` for illuminate/queue is [included](https://github.com/adamnicholson/Chief/blob/master/src/Bridge/Laravel/IlluminateQueuer.php).
 
-Next, attach the `CommandQueueingDecorator` decorator:
-
-```php
-$chief = new Chief();
-$queuer = MyCommandBusQueuer();
-$chief->pushDecorator(new CommandQueueingDecorator($queuer));
-```
-    
-Then, implement `QueueableCommand` in any command which can be queued:
-
-```php
-MyQueueableCommand implements Chief\QueueableCommand {}
-```
-
-Then use Chief as normal:
-
-```php
-$command = new MyQueueableCommand();
-$chief->execute($command);
-```
-
-If you pass Chief any command which implements `QueueableCommand` it will be added to the queue. Any commands which do *not* implement `QueueableCommand` will be executed immediately as normal.
-
-If your commands implement `QueueableCommand` but you are not using the `CommandQueueingDecorator`, then they will be executed immediately as normal. For this reason, it is good practice to implement `QueueableCommand` for any commands which may be queued in the future, even if you aren't using the queueing decorator yet.
-
-## Cached Command Execution
-
-The `CachingDecorator` can be used to store the execution return value for a given command.
-
-For example, you may have a `FetchUerReportCommand`, and an associated handler which takes a significant time to generate the "UserReport". Rather than re-generating the report every time, simply make `FetchUserReport` implement `CacheableCommand`, and the return value will be cached.
-
-Data is cached to a `psr/cache` (PSR-6) compatible cache library.
-
-> Chief does not supply a cache library. You must require this yourself and pass it in as a consturctor argument to the `CachingDecorator`.
+Next, attach the `QueueingDecorator` decorator:
 
 Example:
 
 ```php
-use Chief\CommandBus,
-    Chief\CacheableCommand,
-    Chief\Decorator\CachingDecorator;
-
 $chief = new Chief();
-$chief->pushDecorator(new CachingDecorator(
-	$cache, // Your library of preference implementing PSR-6 CacheItemPoolInterface.
+$queuer = MyCommandBusQueuer();
+$chief->pushDecorator(new QueueingDecorator($queuer));
+
+MyQueueableCommand implements Chief\QueueableCommand {}
+
+$command = new MyQueueableCommand();
+$chief->execute($command);
+```
+
+If you pass Chief any command which implements `QueueableCommand` it will be added to the queue. Any commands which do *not* implement `QueueableCommand` will be executed immediately as normal (or rather, passed to the next decorator in the stack).
+
+#### Cached Commands
+
+The `CachingDecorator` can be used to store the execution return value for a given command.
+
+For example, you may have a `FetchUerReportCommand`, and an associated handler which takes a significant time to generate the "UserReport". Rather than re-generating the report every time, simply make `FetchUerReportCommand` implement `CacheableCommand`, and the return value will be cached.
+
+Data is cached to a `psr/cache` (PSR-6) compatible cache library.
+
+> Chief does not supply a cache library. You must require this yourself and pass it in as a constructor argument to the `CachingDecorator`.
+
+Example:
+
+```php
+$chief = new Chief();
+$chief->pushDecorator(new \Chief\Decorator\Cache\CachingDecorator(
+	$cachePool, // Your library of preference implementing PSR-6 CacheItemPoolInterface.
 	3600 // Time in seconds that values should be cached for. 3600 = 1 hour.
 ));
 
-
     
-class FetchUserReportCommand implements CacheableCommand { }
+class FetchUserReportCommand implements \Chief\Decorator\Cache\CacheableCommand { }
 
 class FetchUserReportCommahdHandler {
 	public function handle(FetchUserReportCommand $command) {
@@ -283,20 +290,16 @@ class FetchUserReportCommahdHandler {
 $report = $chief->execute(new FetchUserReportCommand); // (string) "foo" handle() is called
 $report = $chief->execute(new FetchUserReportCommand); // (string) "foo" Value taken from cache
 $report = $chief->execute(new FetchUserReportCommand); // (string) "foo" Value taken from cache
-
-
 ```
 
-## Transactional Commands
+#### Transactional Commands
 
 Using the `TransactionalCommandLockingDecorator` can help to prevent more than 1 command being executed at any time. In practice, this means that you if you nest a command execution inside a command handler, the nested command will not be executed until the first command has completed.
 
 Here's an example:
 
 ```php
-use Chief\CommandBus;
-use Chief\Command;
-use Chief\Decorator\TransactionalCommandLockingDecorator;
+class RegisterUserCommand implements \Chief\Decorator\Transaction\TransactionalCommand { }
 
 class RegisterUserCommandHandler {
 	public function __construct(CommandBus $bus, Users $users) {
@@ -314,7 +317,7 @@ class RegisterUserCommandHandler {
 }
 
 $chief = new Chief();
-$chief->pushDecorator(new TransactionalCommandLockingDecorator());
+$chief->pushDecorator(new \Chief\Decorator\Transaction\TransactionalCommandLockingDecorator());
 
 $command = new RegisterUserCommand;
 $command->email = 'foo@example.com';
@@ -323,7 +326,7 @@ $command->password = 'password123';
 $chief->execute($command);
 ```
 
-So what's happening here? When `$chief->execute(new RecordUserActivity('registered-user'))` is called, that command is actually dropped into an in-memory queue, which will not execute until `RegisterCommandHandler::handle()` has finished. In this example, because we're showing that an `Exception` is thrown before the method completes, the `RecordUserActivity` command is never actually executed.
+So what's happening here? Looking inside `RegiserUserCommandHandler::handle()`, when `$chief->execute(new RecordUserActivity('registered-user'))` is called, that command is actually dropped into an in-memory queue, which will not execute until `RegisterCommandHandler::handle()` has finished. In this example, because we're showing that an `Exception` is thrown before the method completes, the `RecordUserActivity` command is never actually executed.
 
 
 ## Dependency Injection Container Integration
@@ -336,7 +339,7 @@ For example, if you're using Laravel:
 ```php
 use Chief\Resolvers\NativeCommandHandlerResolver,
     Chief\Chief,
-    Chief\Busses\SynchronousCommandBus,
+    Chief\SynchronousCommandBus,
     Chief\Container;
 
 class IlluminateContainer implements Container {
