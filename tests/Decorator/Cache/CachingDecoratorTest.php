@@ -1,13 +1,15 @@
 <?php
 
-namespace Chief\Decorators;
+namespace Chief\Decorator\Cache;
 
 use Chief\Cache;
-use Chief\CacheableCommand;
+use Chief\Decorator\Cache\CacheableCommand;
 use Chief\Command;
 use Chief\CommandBus;
 use Chief\Decorator;
-use Chief\HasCacheOptions;
+use Chief\Decorator\Cache\CachingDecorator;
+use Chief\Decorator\Cache\HasCacheOptions;
+use Chief\Decorator\DecoratorTest;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Cache\CacheItemInterface;

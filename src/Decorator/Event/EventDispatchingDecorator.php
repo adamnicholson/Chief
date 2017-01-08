@@ -1,8 +1,8 @@
 <?php
 
-namespace Chief\Decorators;
+namespace Chief\Decorator\Event;
 
-use Chief\Busses\SynchronousCommandBus;
+use Chief\SynchronousCommandBus;
 use Chief\Command;
 use Chief\CommandBus;
 use Chief\Decorator;

@@ -2,8 +2,6 @@
 
 namespace Chief;
 
-use Chief\Busses\SynchronousCommandBus;
-
 /**
  * The main Chief class is a CommandBus, which is effectively a decorator
  * around another CommandBus interface

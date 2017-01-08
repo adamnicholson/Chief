@@ -1,6 +1,8 @@
 <?php
 
-namespace Chief;
+namespace Chief\Decorator\Cache;
+
+use Chief\Decorator\Cache\CacheableCommand;
 
 interface HasCacheOptions extends CacheableCommand
 {

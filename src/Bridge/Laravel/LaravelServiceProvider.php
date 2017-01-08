@@ -2,9 +2,9 @@
 
 namespace Chief\Bridge\Laravel;
 
-use Chief\Busses\SynchronousCommandBus;
+use Chief\SynchronousCommandBus;
 use Chief\Chief;
-use Chief\Decorators\CommandQueueingDecorator;
+use Chief\Decorator\Queue\CommandQueueingDecorator;
 use Chief\Resolvers\NativeCommandHandlerResolver;
 use Illuminate\Support\ServiceProvider;
 

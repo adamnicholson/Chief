@@ -1,13 +1,11 @@
 <?php
 
-namespace Chief\Decorators;
+namespace Chief\Decorator\Cache;
 
-use Chief\Busses\SynchronousCommandBus;
-use Chief\CacheableCommand;
+use Chief\SynchronousCommandBus;
 use Chief\Command;
 use Chief\CommandBus;
 use Chief\Decorator;
-use Chief\HasCacheOptions;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 

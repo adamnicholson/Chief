@@ -1,10 +1,11 @@
 <?php
 
-namespace Chief\Busses;
+namespace Chief;
 
 use Chief\ChiefTestCase;
 use Chief\CommandBus;
 use Chief\Stubs\TestCommand;
+use Chief\SynchronousCommandBus;
 
 class SynchronousCommandBusTest extends ChiefTestCase
 {
@@ -15,8 +16,8 @@ class SynchronousCommandBusTest extends ChiefTestCase
 
     public function testExecuteFiresHandlerProvidedByResolver()
     {
-        $resolver = $this->getMockBuilder('Chief\CommandHandlerResolver')->getMock();
-        $handler = $this->getMockBuilder('Chief\CommandHandler')->getMock();
+        $resolver = $this->getMockBuilder(\Chief\CommandHandlerResolver::class)->getMock();
+        $handler = $this->getMockBuilder(\Chief\CommandHandler::class)->getMock();
         $bus = new SynchronousCommandBus($resolver);
         $command = new TestCommand;
         $handler->expects($this->once())->method('handle')->with($command);
@@ -26,8 +27,8 @@ class SynchronousCommandBusTest extends ChiefTestCase
 
     public function testExecuteReturnsHandlerResponse()
     {
-        $resolver = $this->getMockBuilder('Chief\CommandHandlerResolver')->getMock();
-        $handler = $this->getMockBuilder('Chief\CommandHandler')->getMock();
+        $resolver = $this->getMockBuilder(\Chief\CommandHandlerResolver::class)->getMock();
+        $handler = $this->getMockBuilder(\Chief\CommandHandler::class)->getMock();
         $bus = new SynchronousCommandBus($resolver);
         $command = new TestCommand;
         $handler->expects($this->once())->method('handle')->with($command)->willReturn('Foo-Bar.');

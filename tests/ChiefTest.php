@@ -2,8 +2,8 @@
 
 namespace Chief;
 
-use Chief\Busses\SynchronousCommandBus;
-use Chief\Decorators\LoggingDecorator;
+use Chief\SynchronousCommandBus;
+use Chief\Decorator\Log\LoggingDecorator;
 use Chief\Resolvers\NativeCommandHandlerResolver;
 use Chief\Stubs\LogDecoratorCommandBus;
 use Chief\Stubs\NonInterfaceImplementingCommand;
@@ -29,7 +29,7 @@ class ChiefTest extends ChiefTestCase
     public function testExecuteFiresHandlerAttachedByInstance()
     {
         $resolver = new NativeCommandHandlerResolver;
-        $resolver->bindHandler('Chief\Stubs\TestCommand', $handler = $this->getMockBuilder('Chief\CommandHandler')->getMock());
+        $resolver->bindHandler(\Chief\Stubs\TestCommand::class, $handler = $this->getMockBuilder(\Chief\CommandHandler::class)->getMock());
         $syncBus = new SynchronousCommandBus($resolver);
         $bus = new Chief($syncBus);
         $command = new TestCommand;
@@ -40,7 +40,7 @@ class ChiefTest extends ChiefTestCase
     public function testExecuteFiresHandlerAttachedByCallable()
     {
         $resolver = new NativeCommandHandlerResolver;
-        $resolver->bindHandler('Chief\Stubs\TestCommand', function (Command $command) {
+        $resolver->bindHandler(\Chief\Stubs\TestCommand::class, function (Command $command) {
                 $command->handled = true;
         });
         $bus = new Chief(new SynchronousCommandBus($resolver));
@@ -52,7 +52,7 @@ class ChiefTest extends ChiefTestCase
     public function testExecuteFiresHandlerAttachedByString()
     {
         $resolver = new NativeCommandHandlerResolver;
-        $resolver->bindHandler('Chief\Stubs\TestCommand', 'Chief\Stubs\TestCommandHandler');
+        $resolver->bindHandler(\Chief\Stubs\TestCommand::class, \Chief\Stubs\TestCommandHandler::class);
         $bus = new Chief(new SynchronousCommandBus($resolver));
         $command = new TestCommand;
         $bus->execute($command);
@@ -70,7 +70,7 @@ class ChiefTest extends ChiefTestCase
     public function testCommandCanHandleItselfIfImplementsCommandHandler()
     {
         $bus = new Chief();
-        $command = $this->getMockBuilder('Chief\Stubs\SelfHandlingCommand')->getMock();
+        $command = $this->getMockBuilder(\Chief\Stubs\SelfHandlingCommand::class)->getMock();
         $command->expects($this->once())->method('handle')->with($command);
         $bus->execute($command);
     }
@@ -79,7 +79,7 @@ class ChiefTest extends ChiefTestCase
     {
         $bus = new LogDecoratorCommandBus(
             $logger = $this->getMockBuilder('Psr\Log\LoggerInterface')->getMock(),
-            $innerBus = $this->getMockBuilder('Chief\Busses\SynchronousCommandBus')->getMock()
+            $innerBus = $this->getMockBuilder(\Chief\SynchronousCommandBus::class)->getMock()
         );
         $chief = new Chief($bus);
         $command = new TestCommand;
@@ -91,7 +91,7 @@ class ChiefTest extends ChiefTestCase
     public function testInstanceWithDecorators()
     {
         $chief = new Chief(new SynchronousCommandBus, [
-            $decorator = $this->getMockBuilder('Chief\Decorator')->getMock()
+            $decorator = $this->getMockBuilder(\Chief\Decorator::class)->getMock()
         ]);
         $command = new TestCommand;
         $decorator->expects($this->once())->method('execute')->with($command);
@@ -104,7 +104,7 @@ class ChiefTest extends ChiefTestCase
 
         $chief = new Chief(new SynchronousCommandBus, [
             $decoratorOne = new LoggingDecorator($logger),
-            $decoratorTwo = $this->getMockBuilder('Chief\Decorator')->getMock(),
+            $decoratorTwo = $this->getMockBuilder(\Chief\Decorator::class)->getMock(),
         ]);
         $command = new TestCommand;
         $decoratorTwo->expects($this->once())->method('execute')->with($command);
@@ -125,7 +125,7 @@ class ChiefTest extends ChiefTestCase
     }
     public function testInnerBusResponseIsReturnedByChief()
     {
-        $chief = new Chief($bus = $this->getMockBuilder('Chief\CommandBus')->getMock());
+        $chief = new Chief($bus = $this->getMockBuilder(\Chief\CommandBus::class)->getMock());
         $bus->expects($this->once())->method('execute')->willReturn('foo-bar');
         $response = $chief->execute(new TestCommand);
         $this->assertEquals($response, 'foo-bar');

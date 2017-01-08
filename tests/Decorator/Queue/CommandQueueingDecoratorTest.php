@@ -1,9 +1,9 @@
 <?php
 
-namespace Chief\Decorators;
+namespace Chief\Decorator\Queue;
 
-use Chief\ChiefTestCase;
 use Chief\CommandBus;
+use Chief\Decorator\DecoratorTest;
 use Chief\Stubs\TestCommand;
 use Chief\Stubs\TestQueueableCommand;
 
@@ -11,13 +11,13 @@ class CommandQueueingDecoratorTest extends DecoratorTest
 {
     public function testInstance()
     {
-        $this->assertTrue(new CommandQueueingDecorator($this->getMockBuilder('Chief\CommandQueuer')->getMock()) instanceof CommandBus);
+        $this->assertTrue(new CommandQueueingDecorator($this->getMockBuilder(CommandQueuer::class)->getMock()) instanceof CommandBus);
     }
 
     public function testExecutePutsNormalCommandInInnerBus()
     {
-        $queuer = $this->getMockBuilder('Chief\CommandQueuer')->getMock();
-        $innerBus = $this->getMockBuilder('Chief\CommandBus')->getMock();
+        $queuer = $this->getMockBuilder(CommandQueuer::class)->getMock();
+        $innerBus = $this->getMockBuilder(CommandBus::class)->getMock();
         $bus = new CommandQueueingDecorator($queuer, $innerBus);
         $command = new TestCommand;
         $queuer->expects($this->never())->method('queue');
@@ -27,7 +27,7 @@ class CommandQueueingDecoratorTest extends DecoratorTest
 
     public function testExecutePutsQueueableCommandInQueuer()
     {
-        $queuer = $this->getMockBuilder('Chief\CommandQueuer')->getMock();
+        $queuer = $this->getMockBuilder(CommandQueuer::class)->getMock();
         $bus = new CommandQueueingDecorator($queuer);
         $command = new TestQueueableCommand;
         $queuer->expects($this->once())->method('queue')->with($command);
@@ -39,7 +39,7 @@ class CommandQueueingDecoratorTest extends DecoratorTest
      */
     protected function getDecorator()
     {
-        return new CommandQueueingDecorator($this->getMockBuilder('Chief\CommandQueuer')->getMock());
+        return new CommandQueueingDecorator($this->getMockBuilder(CommandQueuer::class)->getMock());
     }
 
 

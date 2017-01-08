@@ -2,6 +2,6 @@
 
 namespace Chief\Stubs;
 
-use Chief\QueueableCommand;
+use Chief\Decorator\Queue\QueueableCommand;
 
 class TestQueueableCommand implements QueueableCommand {}

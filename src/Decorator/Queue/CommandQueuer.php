@@ -1,6 +1,8 @@
 <?php
 
-namespace Chief;
+namespace Chief\Decorator\Queue;
+
+use Chief\Command;
 
 interface CommandQueuer
 {

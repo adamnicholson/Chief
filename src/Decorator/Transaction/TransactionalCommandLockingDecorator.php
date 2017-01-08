@@ -1,11 +1,12 @@
 <?php
 
-namespace Chief\Decorators;
+namespace Chief\Decorator\Transaction;
 
-use Chief\Busses\SynchronousCommandBus;
+use Chief\SynchronousCommandBus;
 use Chief\Command;
 use Chief\CommandBus;
 use Chief\Decorator;
+use Chief\Decorator\InnerBusTrait;
 
 /**
  * TransactionalCommandLockingDecorator treats commands as transactions. Meaning that any

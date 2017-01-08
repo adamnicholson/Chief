@@ -1,10 +1,11 @@
 <?php
 
-namespace Chief\Decorators;
+namespace Chief\Decorator\Transaction;
 
-use Chief\Busses\SynchronousCommandBus;
+use Chief\SynchronousCommandBus;
 use Chief\ChiefTestCase;
 use Chief\CommandBus;
+use Chief\Decorator\Transaction\TransactionalCommandLockingDecorator;
 use Chief\Resolvers\NativeCommandHandlerResolver;
 use Chief\Stubs\TestCommand;
 use Chief\Stubs\TestTransactionalCommand;
@@ -23,11 +24,11 @@ class TransactionalCommandLockingDecoratorTest extends ChiefTestCase
         $command = new TestTransactionalCommand();
 
         $lastCalled = null;
-        $resolver->bindHandler('Chief\Stubs\TestCommand', function () use ($bus, &$lastCalled) {
+        $resolver->bindHandler(\Chief\Stubs\TestCommand::class, function () use ($bus, &$lastCalled) {
             $lastCalled = 'TestCommand';
         });
 
-        $resolver->bindHandler('Chief\Stubs\TestTransactionalCommand', function () use ($bus, &$lastCalled) {
+        $resolver->bindHandler(\Chief\Stubs\TestTransactionalCommand::class, function () use ($bus, &$lastCalled) {
             $bus->execute(new TestCommand());
             $lastCalled = 'TestTransactionalCommand';
         });
@@ -43,11 +44,11 @@ class TransactionalCommandLockingDecoratorTest extends ChiefTestCase
         $command = new TestTransactionalCommand();
 
         $countTestCommandCalled = 0;
-        $resolver->bindHandler('Chief\Stubs\TestCommand', function () use ($bus, &$countTestCommandCalled) {
+        $resolver->bindHandler(\Chief\Stubs\TestCommand::class, function () use ($bus, &$countTestCommandCalled) {
             $countTestCommandCalled++;
         });
 
-        $resolver->bindHandler('Chief\Stubs\TestTransactionalCommand', function () use ($bus, &$lastCalled) {
+        $resolver->bindHandler(\Chief\Stubs\TestTransactionalCommand::class, function () use ($bus, &$lastCalled) {
             $bus->execute(new TestCommand());
             $bus->execute(new TestCommand());
             $bus->execute(new TestCommand());
@@ -64,11 +65,11 @@ class TransactionalCommandLockingDecoratorTest extends ChiefTestCase
         $command = new TestTransactionalCommand();
 
         $countTestCommandCalled = 0;
-        $resolver->bindHandler('Chief\Stubs\TestCommand', function () use ($bus, &$countTestCommandCalled) {
+        $resolver->bindHandler(\Chief\Stubs\TestCommand::class, function () use ($bus, &$countTestCommandCalled) {
             $countTestCommandCalled++;
         });
 
-        $resolver->bindHandler('Chief\Stubs\TestTransactionalCommand', function () use ($bus, &$lastCalled) {
+        $resolver->bindHandler(\Chief\Stubs\TestTransactionalCommand::class, function () use ($bus, &$lastCalled) {
             $bus->execute(new TestCommand());
             $bus->execute(new TestCommand());
             $bus->execute(new TestCommand());

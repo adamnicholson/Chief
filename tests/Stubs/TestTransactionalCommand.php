@@ -2,7 +2,7 @@
 
 namespace Chief\Stubs;
 
-use Chief\TransactionalCommand;
+use Chief\Decorator\Transaction\TransactionalCommand;
 
 class TestTransactionalCommand implements TransactionalCommand
 {

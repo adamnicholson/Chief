@@ -1,6 +1,6 @@
 <?php
 
-namespace Chief\Decorators;
+namespace Chief\Decorator;
 
 use Chief\CommandBus;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Chief\Busses;
+namespace Chief;
 
 use Chief\Command;
 use Chief\CommandBus;

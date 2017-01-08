@@ -2,7 +2,7 @@
 
 namespace Chief\Bridge\Laravel;
 
-use Chief\Decorators\EventDispatcher;
+use Chief\Decorator\Event\EventDispatcher;
 use Illuminate\Events\Dispatcher;
 
 class IlluminateEventDispatcher implements EventDispatcher

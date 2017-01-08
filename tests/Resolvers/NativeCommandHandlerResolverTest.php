@@ -22,7 +22,7 @@ class NativeCommandHandlerResolverTest extends ChiefTestCase
     public function testResolveThrowsExceptionWhenNoHandlerFound()
     {
         $resolver = new NativeCommandHandlerResolver;
-        $this->setExpectedException('Chief\Exceptions\UnresolvableCommandHandlerException');
+        $this->setExpectedException(\Chief\Exceptions\UnresolvableCommandHandlerException::class);
         $resolver->resolve(new TestCommandWithoutHandler);
     }
 
@@ -42,9 +42,9 @@ class NativeCommandHandlerResolverTest extends ChiefTestCase
 
     public function testResolveReturnsHandlerBoundByObject()
     {
-        $handler = $this->getMockBuilder('Chief\CommandHandler')->getMock();
+        $handler = $this->getMockBuilder(\Chief\CommandHandler::class)->getMock();
         $resolver = new NativeCommandHandlerResolver;
-        $resolver->bindHandler('Chief\Stubs\TestCommandWithoutHandler', $handler);
+        $resolver->bindHandler(\Chief\Stubs\TestCommandWithoutHandler::class, $handler);
         $this->assertEquals($resolver->resolve(new TestCommandWithoutHandler), $handler);
     }
 
@@ -52,7 +52,7 @@ class NativeCommandHandlerResolverTest extends ChiefTestCase
     {
         $resolver = new NativeCommandHandlerResolver;
         $proof = new \stdClass();
-        $resolver->bindHandler('Chief\Stubs\TestCommandWithoutHandler', function (Command $command) use ($proof) {
+        $resolver->bindHandler(\Chief\Stubs\TestCommandWithoutHandler::class, function (Command $command) use ($proof) {
                 $proof->handled = true;
         });
         $command = new TestCommandWithoutHandler;
@@ -65,7 +65,7 @@ class NativeCommandHandlerResolverTest extends ChiefTestCase
     public function testResolveReturnsHandlerBoundByString()
     {
         $resolver = new NativeCommandHandlerResolver;
-        $resolver->bindHandler('Chief\Stubs\TestCommandWithoutHandler', 'Chief\Stubs\TestCommandHandler');
+        $resolver->bindHandler(\Chief\Stubs\TestCommandWithoutHandler::class, \Chief\Stubs\TestCommandHandler::class);
         $command = new TestCommand;
         $handler = $resolver->resolve($command);
         $this->assertTrue($handler instanceof CommandHandler);

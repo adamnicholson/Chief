@@ -1,8 +1,10 @@
 <?php
 
-namespace Chief\Decorators;
+namespace Chief\Decorator\Log;
 
 use Chief\CommandBus;
+use Chief\Decorator\Log\LoggingDecorator;
+use Chief\Decorator\DecoratorTest;
 use Chief\Stubs\TestCommand;
 
 class LoggingDecoratorTest extends DecoratorTest
@@ -10,7 +12,7 @@ class LoggingDecoratorTest extends DecoratorTest
     public function testInstance()
     {
         $decorator = $this->getDecorator();
-        $decorator->setInnerBus($this->getMockBuilder('Chief\CommandBus')->getMock());
+        $decorator->setInnerBus($this->getMockBuilder(\Chief\CommandBus::class)->getMock());
         $this->assertTrue($decorator instanceof CommandBus);
     }
 
@@ -19,7 +21,7 @@ class LoggingDecoratorTest extends DecoratorTest
         $decorator = new LoggingDecorator(
             $logger = $this->getMockBuilder('Psr\Log\LoggerInterface')->getMock()
         );
-        $decorator->setInnerBus($bus = $this->getMockBuilder('Chief\CommandBus')->getMock());
+        $decorator->setInnerBus($bus = $this->getMockBuilder(\Chief\CommandBus::class)->getMock());
         $command = new TestCommand();
         $bus->expects($this->once())->method('execute')->with($command);
         $logger->expects($this->exactly(2))->method('debug')->with($this->anything(), ['Command' => serialize($command), 'Context' => null]);
@@ -31,7 +33,7 @@ class LoggingDecoratorTest extends DecoratorTest
         $decorator = new LoggingDecorator(
             $logger = $this->getMockBuilder('Psr\Log\LoggerInterface')->getMock()
         );
-        $decorator->setInnerBus($bus = $this->getMockBuilder('Chief\CommandBus')->getMock());
+        $decorator->setInnerBus($bus = $this->getMockBuilder(\Chief\CommandBus::class)->getMock());
         $command = new TestCommand();
         $bus->expects($this->once())->method('execute')->with($command)->will($this->throwException(new \Exception('Oops')));
         $logger->expects($this->exactly(2))->method('debug')->with($this->anything(), ['Command' => serialize($command), 'Context' => null]);

@@ -169,7 +169,7 @@ Now, whenever `Chief::execute()` is called, the command will be passed to `Loggi
 Chief provides you with two decorators out-the-box:
 
 - *LoggingDecorator*: Log before and after all executions to a `Psr\Log\LoggerInterface`
-- *EventDispatchingDecorator*: Dispatch an event to a `Chief\Decorators\EventDispatcher` after every command execution.
+- *EventDispatchingDecorator*: Dispatch an event to a `Chief\Decorator\EventDispatcher` after every command execution.
 - *CommandQueueingDecorator*: Put the command into a Queue for later execution, if it implements `Chief\QueueableCommand`. (Read more under "Queued Commands")
 - *TransactionalCommandLockingDecorator*: Lock the command bus when a command implementing `Chief\TransactionalCommand` is being executed. (Read more under "Transactional Commands")
     
@@ -262,7 +262,7 @@ Example:
 ```php
 use Chief\CommandBus,
     Chief\CacheableCommand,
-    Chief\Decorators\CachingDecorator;
+    Chief\Decorator\CachingDecorator;
 
 $chief = new Chief();
 $chief->pushDecorator(new CachingDecorator(
@@ -296,7 +296,7 @@ Here's an example:
 ```php
 use Chief\CommandBus;
 use Chief\Command;
-use Chief\Decorators\TransactionalCommandLockingDecorator;
+use Chief\Decorator\TransactionalCommandLockingDecorator;
 
 class RegisterUserCommandHandler {
 	public function __construct(CommandBus $bus, Users $users) {

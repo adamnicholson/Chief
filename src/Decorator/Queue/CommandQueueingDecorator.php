@@ -1,13 +1,12 @@
 <?php
 
-namespace Chief\Decorators;
+namespace Chief\Decorator\Queue;
 
-use Chief\Busses\SynchronousCommandBus;
+use Chief\SynchronousCommandBus;
 use Chief\Command;
 use Chief\CommandBus;
-use Chief\CommandQueuer;
 use Chief\Decorator;
-use Chief\QueueableCommand;
+use Chief\Decorator\InnerBusTrait;
 
 /**
  * Queue commands which implement QueueableCommand into a CommandQueuer
@@ -17,7 +16,7 @@ class CommandQueueingDecorator implements Decorator
     use InnerBusTrait;
 
     /**
-     * @var \Chief\CommandQueuer
+     * @var \Chief\Decorator\Queue\CommandQueuer
      */
     protected $queuer;
 
@@ -35,7 +34,7 @@ class CommandQueueingDecorator implements Decorator
      * Execute a command
      *
      * @param Command $command
-     * @return void|mixed
+     * @return mixed
      */
     public function execute(Command $command)
     {

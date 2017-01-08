@@ -3,7 +3,7 @@
 namespace Chief\Bridge\Laravel;
 
 use Chief\Command;
-use Chief\CommandQueuer;
+use Chief\Decorator\Queue\CommandQueuer;
 
 class IlluminateQueuer implements CommandQueuer
 {
