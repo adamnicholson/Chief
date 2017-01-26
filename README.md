@@ -115,7 +115,7 @@ use Chief\Chief, Chief\NativeCommandHandlerResolver, Chief\Busses\SynchronousCom
 
 $resolver = new NativeCommandHandlerResolver();
 $bus = new SynchronousCommandBus($resolver);
-$chief = new Chief($resolver);
+$chief = new Chief($bus);
 
 $resolver->bindHandler('MyCommand', 'MyCommandHandler');
 
