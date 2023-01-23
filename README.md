@@ -364,7 +364,7 @@ $chief = new Chief(new \Chief\Busses\SynchronousCommandBus($resolver));
 
 ```php
 $container = new \League\Container\Container;
-$resolver = new NativeCommandHandlerResolver(new \Chief\Bridge\Laravel\IlluminateContainer($container));
+$resolver = new NativeCommandHandlerResolver(new \Chief\Bridge\League\LeagueContainer($container));
 $chief = new Chief(new \Chief\Busses\SynchronousCommandBus($resolver));
 ```
 
