@@ -49,12 +49,13 @@ class CachingDecoratorTest extends DecoratorTest
         $inner = $this->prophesize(CommandBus::class);
         $decorator->setInnerBus($inner->reveal());
 
-        $command = $this->prophesize(CacheableCommand::class)->reveal();
+        $command = new FakeCachableCommand('fizzbuzz');
 
         $notCachedItem = $this->prophesize(CacheItemInterface::class);
         $notCachedItem->isHit()->willReturn(false);
-        $notCachedItem->getKey()->willReturn(md5(serialize(($command))));
-        $this->cache->getItem(Argument::any())->willReturn($notCachedItem->reveal());
+        $cacheKey = md5(serialize(($command)));
+        $notCachedItem->getKey()->willReturn($cacheKey);
+        $this->cache->getItem($cacheKey)->willReturn($notCachedItem->reveal());
 
         $notCachedItem->set(7)->shouldBeCalled()->willReturn($notCachedItem->reveal());
         $notCachedItem->expiresAfter(3600)->shouldBeCalled()->willReturn($notCachedItem->reveal());
@@ -75,11 +76,7 @@ class CachingDecoratorTest extends DecoratorTest
         $inner = $this->prophesize(CommandBus::class);
         $decorator->setInnerBus($inner->reveal());
 
-        $commandProphecy = $this->prophesize(HasCacheOptions::class);
-        $commandProphecy->getCacheExpiry()->willReturn(60*60*24*365);
-        $commandProphecy->getCacheKey()->willReturn(null);
-
-        $command = $commandProphecy->reveal();
+        $command = new FakeCachableCommandWithCacheOptions('fizzbuzz', 60*60*24*365, null);
 
         $notCachedItem = $this->prophesize(CacheItemInterface::class);
         $notCachedItem->isHit()->willReturn(false);
@@ -105,11 +102,7 @@ class CachingDecoratorTest extends DecoratorTest
         $inner = $this->prophesize(CommandBus::class);
         $decorator->setInnerBus($inner->reveal());
 
-        $commandProphecy = $this->prophesize(HasCacheOptions::class);
-        $commandProphecy->getCacheExpiry()->willReturn(null);
-        $commandProphecy->getCacheKey()->willReturn('custom-cache-key');
-
-        $command = $commandProphecy->reveal();
+        $command = new FakeCachableCommandWithCacheOptions('fizzbuzz', null, 'custom-cache-key');
 
         $notCachedItem = $this->prophesize(CacheItemInterface::class);
         $notCachedItem->isHit()->willReturn(false);
@@ -135,7 +128,7 @@ class CachingDecoratorTest extends DecoratorTest
         $inner = $this->prophesize(CommandBus::class);
         $decorator->setInnerBus($inner->reveal());
 
-        $command = $this->prophesize(CacheableCommand::class)->reveal();
+        $command = new FakeCachableCommand('fizzbuzz');
 
         $cachedItem = $this->prophesize(CacheItemInterface::class);
         $cachedItem->isHit()->willReturn(true);
@@ -155,5 +148,38 @@ class CachingDecoratorTest extends DecoratorTest
     {
         $this->cache = $this->prophesize(CacheItemPoolInterface::class);
         return new CachingDecorator($this->cache->reveal());
+    }
+}
+
+class FakeCachableCommand implements CacheableCommand
+{
+    public $data;
+
+    public function __construct($data)
+    {
+        $this->data = $data;
+    }
+}
+
+class FakeCachableCommandWithCacheOptions extends FakeCachableCommand implements HasCacheOptions
+{
+    private $expiry;
+    private $cacheKey;
+
+    public function __construct($data, $expiry, $cacheKey)
+    {
+        $this->data = $data;
+        $this->expiry = $expiry;
+        $this->cacheKey = $cacheKey;
+    }
+
+    public function getCacheExpiry()
+    {
+        return $this->expiry;
+    }
+
+    public function getCacheKey()
+    {
+        return $this->cacheKey;
     }
 }

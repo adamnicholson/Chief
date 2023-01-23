@@ -9,7 +9,7 @@ class IlluminateEventDispatcherTest extends ChiefTestCase
 {
     public function testDispatchHitsDispatcher()
     {
-        $instance = new IlluminateEventDispatcher($dispatcher = $this->getMock('Illuminate\Events\Dispatcher'));
+        $instance = new IlluminateEventDispatcher($dispatcher = $this->createMock('Illuminate\Events\Dispatcher'));
         $eventName = 'Foo.Event';
         $eventdata = new TestCommand();
         $dispatcher->expects($this->once())->method('fire')->with($eventName, $eventdata);

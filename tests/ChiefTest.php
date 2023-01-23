@@ -29,7 +29,7 @@ class ChiefTest extends ChiefTestCase
     public function testExecuteFiresHandlerAttachedByInstance()
     {
         $resolver = new NativeCommandHandlerResolver;
-        $resolver->bindHandler('Chief\Stubs\TestCommand', $handler = $this->getMock('Chief\CommandHandler'));
+        $resolver->bindHandler('Chief\Stubs\TestCommand', $handler = $this->createMock('Chief\CommandHandler'));
         $syncBus = new SynchronousCommandBus($resolver);
         $bus = new Chief($syncBus);
         $command = new TestCommand;
@@ -63,14 +63,14 @@ class ChiefTest extends ChiefTestCase
     {
         $bus = new Chief();
         $command = new TestCommandWithoutHandler;
-        $this->setExpectedException('Exception');
+        $this->expectException('Exception');
         $bus->execute($command);
     }
 
     public function testCommandCanHandleItselfIfImplementsCommandHandler()
     {
         $bus = new Chief();
-        $command = $this->getMock('Chief\Stubs\SelfHandlingCommand');
+        $command = $this->createMock('Chief\Stubs\SelfHandlingCommand');
         $command->expects($this->once())->method('handle')->with($command);
         $bus->execute($command);
     }
@@ -78,8 +78,8 @@ class ChiefTest extends ChiefTestCase
     public function testDecoratorCommandBus()
     {
         $bus = new LogDecoratorCommandBus(
-            $logger = $this->getMock('Psr\Log\LoggerInterface'),
-            $innerBus = $this->getMock('Chief\Busses\SynchronousCommandBus')
+            $logger = $this->createMock('Psr\Log\LoggerInterface'),
+            $innerBus = $this->createMock('Chief\Busses\SynchronousCommandBus')
         );
         $chief = new Chief($bus);
         $command = new TestCommand;
@@ -91,7 +91,7 @@ class ChiefTest extends ChiefTestCase
     public function testInstanceWithDecorators()
     {
         $chief = new Chief(new SynchronousCommandBus, [
-            $decorator = $this->getMock('Chief\Decorator')
+            $decorator = $this->createMock('Chief\Decorator')
         ]);
         $command = new TestCommand;
         $decorator->expects($this->once())->method('execute')->with($command);
@@ -100,11 +100,11 @@ class ChiefTest extends ChiefTestCase
 
     public function testInstanceWithMultipleDecoratorsHitsNestedDecorators()
     {
-        $logger = $this->getMock('Psr\Log\LoggerInterface');
+        $logger = $this->createMock('Psr\Log\LoggerInterface');
 
         $chief = new Chief(new SynchronousCommandBus, [
             $decoratorOne = new LoggingDecorator($logger),
-            $decoratorTwo = $this->getMock('Chief\Decorator'),
+            $decoratorTwo = $this->createMock('Chief\Decorator'),
         ]);
         $command = new TestCommand;
         $decoratorTwo->expects($this->once())->method('execute')->with($command);
@@ -113,7 +113,7 @@ class ChiefTest extends ChiefTestCase
 
     public function testInstanceWithMultipleDecoratorsHitsHandler()
     {
-        $logger = $this->getMock('Psr\Log\LoggerInterface');
+        $logger = $this->createMock('Psr\Log\LoggerInterface');
 
         $chief = new Chief(new SynchronousCommandBus, [
             $decoratorOne = new LoggingDecorator($logger),
@@ -125,7 +125,7 @@ class ChiefTest extends ChiefTestCase
     }
     public function testInnerBusResponseIsReturnedByChief()
     {
-        $chief = new Chief($bus = $this->getMock('Chief\CommandBus'));
+        $chief = new Chief($bus = $this->createMock('Chief\CommandBus'));
         $bus->expects($this->once())->method('execute')->willReturn('foo-bar');
         $response = $chief->execute(new TestCommand);
         $this->assertEquals($response, 'foo-bar');

@@ -2,7 +2,10 @@
 
 namespace Chief;
 
-abstract class ChiefTestCase extends \PHPUnit_Framework_TestCase
-{
+use PHPUnit\Framework\TestCase;
+use Prophecy\PhpUnit\ProphecyTrait;
 
+abstract class ChiefTestCase extends TestCase
+{
+    use ProphecyTrait;
 }
