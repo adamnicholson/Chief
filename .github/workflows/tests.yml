@@ -1,11 +1,13 @@
 name: PHPUnit Tests
 on: [push]
 jobs:
-  Explore-GitHub-Actions:
+  Run-Tests:
     runs-on: ubuntu-latest
-    with:
-      php-version: '8.0'
-      tools: 'composer'
     steps:
-      - run: composer install
-      - run: vendor/bin/phpunit
+      - name: Install dependencies
+        with:
+          php-version: '8.0'
+          tools: 'composer'
+        run: composer install
+      - name: Run tests
+        run: vendor/bin/phpunit
