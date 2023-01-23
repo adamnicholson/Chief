@@ -10,16 +10,16 @@ class LoggingDecoratorTest extends DecoratorTest
     public function testInstance()
     {
         $decorator = $this->getDecorator();
-        $decorator->setInnerBus($this->getMock('Chief\CommandBus'));
+        $decorator->setInnerBus($this->createMock('Chief\CommandBus'));
         $this->assertTrue($decorator instanceof CommandBus);
     }
 
     public function testExecuteLogsMessageAndFiresInnerBus()
     {
         $decorator = new LoggingDecorator(
-            $logger = $this->getMock('Psr\Log\LoggerInterface')
+            $logger = $this->createMock('Psr\Log\LoggerInterface')
         );
-        $decorator->setInnerBus($bus = $this->getMock('Chief\CommandBus'));
+        $decorator->setInnerBus($bus = $this->createMock('Chief\CommandBus'));
         $command = new TestCommand();
         $bus->expects($this->once())->method('execute')->with($command);
         $logger->expects($this->exactly(2))->method('debug')->with($this->anything(), ['Command' => serialize($command), 'Context' => null]);
@@ -29,14 +29,14 @@ class LoggingDecoratorTest extends DecoratorTest
     public function testExecuteLogsExecptionIfThrownByInnerBusAndBubbleException()
     {
         $decorator = new LoggingDecorator(
-            $logger = $this->getMock('Psr\Log\LoggerInterface')
+            $logger = $this->createMock('Psr\Log\LoggerInterface')
         );
-        $decorator->setInnerBus($bus = $this->getMock('Chief\CommandBus'));
+        $decorator->setInnerBus($bus = $this->createMock('Chief\CommandBus'));
         $command = new TestCommand();
         $bus->expects($this->once())->method('execute')->with($command)->will($this->throwException(new \Exception('Oops')));
         $logger->expects($this->exactly(2))->method('debug')->with($this->anything(), ['Command' => serialize($command), 'Context' => null]);
 
-        $this->setExpectedException('Exception');
+        $this->expectException('Exception');
         $decorator->execute($command);
     }
 
@@ -45,7 +45,7 @@ class LoggingDecoratorTest extends DecoratorTest
      */
     protected function getDecorator()
     {
-        return new LoggingDecorator($this->getMock('Psr\Log\LoggerInterface'));
+        return new LoggingDecorator($this->createMock('Psr\Log\LoggerInterface'));
     }
 
 }

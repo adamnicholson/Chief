@@ -75,7 +75,7 @@ class TransactionalCommandLockingDecoratorTest extends ChiefTestCase
             throw new \Exception('Something failed');
         });
 
-        $this->setExpectedException('Exception');
+        $this->expectException('Exception');
         $bus->execute($command);
 
         $this->assertEquals($countTestCommandCalled, 0);

@@ -22,7 +22,7 @@ class NativeCommandHandlerResolverTest extends ChiefTestCase
     public function testResolveThrowsExceptionWhenNoHandlerFound()
     {
         $resolver = new NativeCommandHandlerResolver;
-        $this->setExpectedException('Chief\Exceptions\UnresolvableCommandHandlerException');
+        $this->expectException('Chief\Exceptions\UnresolvableCommandHandlerException');
         $resolver->resolve(new TestCommandWithoutHandler);
     }
 
@@ -42,7 +42,7 @@ class NativeCommandHandlerResolverTest extends ChiefTestCase
 
     public function testResolveReturnsHandlerBoundByObject()
     {
-        $handler = $this->getMock('Chief\CommandHandler');
+        $handler = $this->createMock('Chief\CommandHandler');
         $resolver = new NativeCommandHandlerResolver;
         $resolver->bindHandler('Chief\Stubs\TestCommandWithoutHandler', $handler);
         $this->assertEquals($resolver->resolve(new TestCommandWithoutHandler), $handler);
