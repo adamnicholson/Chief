@@ -28,7 +28,7 @@ class TransactionalCommandLockingDecorator implements Decorator
      */
     protected $queue = [];
 
-    public function __construct(CommandBus $innerCommandBus = null)
+    public function __construct(?CommandBus $innerCommandBus = null)
     {
         $this->setInnerBus($innerCommandBus ?: new SynchronousCommandBus());
     }

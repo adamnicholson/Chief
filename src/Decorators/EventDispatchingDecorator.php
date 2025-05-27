@@ -22,9 +22,9 @@ class EventDispatchingDecorator implements Decorator
 
     /**
      * @param EventDispatcher $dispatcher
-     * @param CommandBus $innerCommandBus
+     * @param CommandBus|null $innerCommandBus
      */
-    public function __construct(EventDispatcher $dispatcher, CommandBus $innerCommandBus = null)
+    public function __construct(EventDispatcher $dispatcher, ?CommandBus $innerCommandBus = null)
     {
         $this->dispatcher = $dispatcher;
         $this->setInnerBus($innerCommandBus ?: new SynchronousCommandBus());

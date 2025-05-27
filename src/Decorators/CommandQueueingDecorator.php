@@ -25,7 +25,7 @@ class CommandQueueingDecorator implements Decorator
      * @param CommandQueuer $queuer
      * @param CommandBus $innerCommandBus
      */
-    public function __construct(CommandQueuer $queuer, CommandBus $innerCommandBus = null)
+    public function __construct(CommandQueuer $queuer, ?CommandBus $innerCommandBus = null)
     {
         $this->queuer = $queuer;
         $this->setInnerBus($innerCommandBus ?: new SynchronousCommandBus());

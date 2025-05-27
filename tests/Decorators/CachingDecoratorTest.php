@@ -153,9 +153,19 @@ class CachingDecoratorTest extends DecoratorTest
 
 class FakeCachableCommand implements CacheableCommand
 {
-    public $data;
+    private $data;
 
     public function __construct($data)
+    {
+        $this->data = $data;
+    }
+
+    public function getData()
+    {
+        return $this->data;
+    }
+
+    public function setData($data)
     {
         $this->data = $data;
     }
@@ -168,7 +178,7 @@ class FakeCachableCommandWithCacheOptions extends FakeCachableCommand implements
 
     public function __construct($data, $expiry, $cacheKey)
     {
-        $this->data = $data;
+        parent::__construct($data);
         $this->expiry = $expiry;
         $this->cacheKey = $cacheKey;
     }
