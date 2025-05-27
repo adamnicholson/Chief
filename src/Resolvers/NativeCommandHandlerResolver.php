@@ -17,7 +17,7 @@ class NativeCommandHandlerResolver implements CommandHandlerResolver
 
     protected $handlers = [];
 
-    public function __construct(Container $container = null)
+    public function __construct(?Container $container = null)
     {
         $this->container = $container ?: new NativeContainer;
     }

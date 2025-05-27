@@ -9,6 +9,9 @@ use Psr\Log\LoggerInterface;
 
 class LogDecoratorCommandBus implements Decorator
 {
+    public $logger;
+    public $commandBus;
+
     public function __construct(LoggerInterface $logger, CommandBus $commandBus)
     {
         $this->logger = $logger;

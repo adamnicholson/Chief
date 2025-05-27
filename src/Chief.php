@@ -22,7 +22,7 @@ class Chief implements CommandBus
      * @param CommandBus $bus
      * @param array $decorators Array of \Chief\Decorator objects
      */
-    public function __construct(CommandBus $bus = null, array $decorators = [])
+    public function __construct(?CommandBus $bus = null, array $decorators = [])
     {
         $this->bus = $bus ?: new SynchronousCommandBus;
 

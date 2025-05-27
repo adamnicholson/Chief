@@ -32,7 +32,7 @@ class CachingDecorator implements Decorator
      * @param int $expiresAfter
      * @param CommandBus $innerCommandBus
      */
-    public function __construct(CacheItemPoolInterface $cache, $expiresAfter = 3600, CommandBus $innerCommandBus = null)
+    public function __construct(CacheItemPoolInterface $cache, int $expiresAfter = 3600, ?CommandBus $innerCommandBus = null)
     {
         $this->cache = $cache;
         $this->expiresAfter = $expiresAfter;

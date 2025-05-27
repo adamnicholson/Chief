@@ -27,7 +27,7 @@ class LoggingDecorator implements Decorator
      * the command execution, such as the request/session information.
      * @param CommandBus $innerCommandBus
      */
-    public function __construct(LoggerInterface $logger, $context = null, CommandBus $innerCommandBus = null)
+    public function __construct(LoggerInterface $logger, mixed $context = null, ?CommandBus $innerCommandBus = null)
     {
         $this->logger = $logger;
         $this->context = $context;

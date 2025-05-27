@@ -11,7 +11,7 @@ class SynchronousCommandBus implements CommandBus
 {
     protected $resolver;
 
-    public function __construct(CommandHandlerResolver $resolver = null)
+    public function __construct(?CommandHandlerResolver $resolver = null)
     {
         $this->resolver = $resolver ?: new NativeCommandHandlerResolver;
     }
