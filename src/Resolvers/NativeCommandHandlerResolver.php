@@ -10,7 +10,6 @@ use Chief\Exceptions\UnresolvableCommandHandlerException;
 use Chief\Handlers\CallableCommandHandler;
 use Chief\Handlers\LazyLoadingCommandHandler;
 use Chief\Containers\NativeContainer;
-use Psr\Container\ContainerInterface;
 
 class NativeCommandHandlerResolver implements CommandHandlerResolver
 {
@@ -18,17 +17,9 @@ class NativeCommandHandlerResolver implements CommandHandlerResolver
 
     protected $handlers = [];
 
-    public function __construct(ContainerInterface|Container|null $container = null)
+    public function __construct(?Container $container = null)
     {
-        if ($container instanceof ContainerInterface) {
-            $this->container = $container;
-        } elseif ($container instanceof Container) {
-            $this->container = $container;
-        } elseif ($container === null) {
-            $this->container = new NativeContainer;
-        } else {
-            throw new \InvalidArgumentException('Container must implement Psr\Container\ContainerInterface or Chief\Container');
-        }
+        $this->container = $container ?: new NativeContainer;
     }
 
     /**
@@ -57,7 +48,7 @@ class NativeCommandHandlerResolver implements CommandHandlerResolver
         // Try and guess the handler's name in the same namespace with suffix "Handler"
         $class = $commandName . 'Handler';
         if (class_exists($class)) {
-            return $this->container->get($class);
+            return $this->container->make($class);
         }
 
         // Try and guess the handler's name in nested "Handlers" namespace with suffix "Handler"
@@ -65,7 +56,7 @@ class NativeCommandHandlerResolver implements CommandHandlerResolver
         $commandNameWithoutNamespace = array_pop($classParts);
         $class = implode('\\', $classParts) . '\\Handlers\\' . $commandNameWithoutNamespace . 'Handler';
         if (class_exists($class)) {
-            return $this->container->get($class);
+            return $this->container->make($class);
         }
 
         throw new UnresolvableCommandHandlerException('Could not resolve a handler for [' . get_class($command) . ']');
